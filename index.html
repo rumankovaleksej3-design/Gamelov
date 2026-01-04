@@ -13,17 +13,38 @@ body {
 }
 
 header {
-  padding: 20px;
-  text-align: center;
-  font-size: 28px;
-  font-weight: bold;
   background: #111;
+  padding: 15px;
+  text-align: center;
+  font-size: 26px;
+  font-weight: bold;
+}
+
+nav {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  background: #1a1a1a;
+  padding: 10px;
+  position: sticky;
+  top: 0;
+}
+
+nav a {
+  color: #4caf50;
+  text-decoration: none;
+  font-weight: bold;
 }
 
 .container {
   padding: 20px;
-  max-width: 600px;
+  max-width: 700px;
   margin: auto;
+}
+
+.section-title {
+  font-size: 24px;
+  margin: 30px 0 15px;
 }
 
 .card {
@@ -44,17 +65,13 @@ header {
   padding: 15px;
 }
 
-.card h3 {
-  margin: 0 0 10px;
-}
-
 .price {
-  font-size: 18px;
   color: #4caf50;
+  font-size: 18px;
 }
 
 .buy {
-  margin-top: 15px;
+  margin-top: 12px;
   width: 100%;
   padding: 12px;
   font-size: 16px;
@@ -63,10 +80,6 @@ header {
   border-radius: 8px;
   color: white;
 }
-
-.buy:active {
-  background: #3e8e41;
-}
 </style>
 </head>
 
@@ -74,12 +87,21 @@ header {
 
 <header>🎮 Gamelov Store</header>
 
+<nav>
+  <a href="#freefire">Free Fire</a>
+  <a href="#standoff">Standoff 2</a>
+</nav>
+
 <div class="container">
 
+<!-- FREE FIRE -->
+<div id="freefire">
+  <div class="section-title">🔥 Free Fire</div>
+
   <div class="card">
-    <img src="freefire.jpg">
+    <img src="">
     <div class="card-content">
-      <h3>Free Fire — 100 Diamonds</h3>
+      <h3>100 Diamonds</h3>
       <div class="price">99₽</div>
       <a href="https://t.me/allkooru" target="_blank">
         <button class="buy">Купить</button>
@@ -88,15 +110,43 @@ header {
   </div>
 
   <div class="card">
+    <img src="freefire.jpg">
+    <div class="card-content">
+      <h3>310 Diamonds</h3>
+      <div class="price">249₽</div>
+      <a href="https://t.me/allkooru" target="_blank">
+        <button class="buy">Купить</button>
+      </a>
+    </div>
+  </div>
+
+  <div class="card">
+    <img src="freefire.jpg">
+    <div class="card-content">
+      <h3>520 Diamonds</h3>
+      <div class="price">399₽</div>
+      <a href="https://t.me/allkooru" target="_blank">
+        <button class="buy">Купить</button>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- STANDOFF 2 -->
+<div id="standoff">
+  <div class="section-title">🎯 Standoff 2</div>
+
+  <div class="card">
     <img src="standoff2.jpg">
     <div class="card-content">
-      <h3>Standoff 2 — Gold Pack</h3>
+      <h3>Gold Pack</h3>
       <div class="price">149₽</div>
       <a href="https://t.me/allkooru" target="_blank">
         <button class="buy">Купить</button>
       </a>
     </div>
   </div>
+</div>
 
 </div>
 
