@@ -2,153 +2,185 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Gamelov — Game Store</title>
+<title>GameLov • Кейсы</title>
 
 <style>
 body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(180deg, #0f0f0f, #1a1a1a);
-  color: white;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: radial-gradient(circle at top, #1b1b2f, #0f0f1a);
+    color: #fff;
 }
 
-header {
-  background: #111;
-  padding: 15px;
-  text-align: center;
-  font-size: 26px;
-  font-weight: bold;
-}
-
+/* NAV */
 nav {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  background: #1a1a1a;
-  padding: 10px;
-  position: sticky;
-  top: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 25px;
+    background: #111;
 }
 
 nav a {
-  color: #4caf50;
-  text-decoration: none;
-  font-weight: bold;
+    color: #fff;
+    margin-left: 15px;
+    text-decoration: none;
+    font-weight: bold;
 }
 
-.container {
-  padding: 20px;
-  max-width: 700px;
-  margin: auto;
+nav a:hover {
+    color: #4caf50;
 }
 
-.section-title {
-  font-size: 24px;
-  margin: 30px 0 15px;
+/* HEADER */
+header {
+    text-align: center;
+    padding: 50px 20px;
 }
 
-.card {
-  background: #1e1e1e;
-  border-radius: 15px;
-  overflow: hidden;
-  margin-bottom: 20px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+header h1 {
+    font-size: 36px;
 }
 
-.card img {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
+/* CASES */
+.cases {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+    padding: 30px;
 }
 
-.card-content {
-  padding: 15px;
+.case {
+    background: #181828;
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(0,0,0,0.6);
 }
 
-.price {
-  color: #4caf50;
-  font-size: 18px;
+.case img {
+    width: 100%;
+    border-radius: 10px;
 }
 
-.buy {
-  margin-top: 12px;
-  width: 100%;
-  padding: 12px;
-  font-size: 16px;
-  background: #4caf50;
-  border: none;
-  border-radius: 8px;
-  color: white;
+.case h3 {
+    margin: 15px 0 5px;
+}
+
+.case button {
+    margin-top: 10px;
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #4caf50, #2e7d32);
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.case button:hover {
+    opacity: 0.9;
+}
+
+/* MODAL */
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: #1c1c2e;
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    animation: pop 0.4s ease;
+}
+
+@keyframes pop {
+    from { transform: scale(0.7); }
+    to { transform: scale(1); }
+}
+
+.prize {
+    font-size: 24px;
+    margin-top: 15px;
+    color: #4caf50;
 }
 </style>
 </head>
 
 <body>
 
-<header>🎮 Gamelov Store</header>
-
 <nav>
-  <a href="#freefire">Free Fire</a>
-  <a href="#standoff">Standoff 2</a>
+    <div>🎮 GameLov</div>
+    <div>
+        <a href="#cases">Кейсы</a>
+        <a href="#">Магазин</a>
+        <a href="#">Профиль</a>
+    </div>
 </nav>
 
-<div class="container">
+<header>
+    <h1>Кейсы Free Fire</h1>
+    <p>Крути — получай алмазы и бонусы</p>
+</header>
 
-<!-- FREE FIRE -->
-<div id="freefire">
-  <div class="section-title">🔥 Free Fire</div>
-
-  <div class="card">
-    <img src="">
-    <div class="card-content">
-      <h3>100 Diamonds</h3>
-      <div class="price">99₽</div>
-      <a href="https://t.me/allkooru" target="_blank">
-        <button class="buy">Купить</button>
-      </a>
+<section class="cases" id="cases">
+    <div class="case">
+        <img src="https://i.imgur.com/YZ7QK4R.png">
+        <h3>Free Fire Basic</h3>
+        <p>Цена: 99₽</p>
+        <button onclick="openCase()">Крутить</button>
     </div>
-  </div>
 
-  <div class="card">
-    <img src="freefire.jpg">
-    <div class="card-content">
-      <h3>310 Diamonds</h3>
-      <div class="price">249₽</div>
-      <a href="https://t.me/allkooru" target="_blank">
-        <button class="buy">Купить</button>
-      </a>
+    <div class="case">
+        <img src="https://i.imgur.com/7Q6kPZP.png">
+        <h3>Free Fire Gold</h3>
+        <p>Цена: 199₽</p>
+        <button onclick="openCase()">Крутить</button>
     </div>
-  </div>
 
-  <div class="card">
-    <img src="freefire.jpg">
-    <div class="card-content">
-      <h3>520 Diamonds</h3>
-      <div class="price">399₽</div>
-      <a href="https://t.me/allkooru" target="_blank">
-        <button class="buy">Купить</button>
-      </a>
+    <div class="case">
+        <img src="https://i.imgur.com/k5mP9Qx.png">
+        <h3>Free Fire VIP</h3>
+        <p>Цена: 399₽</p>
+        <button onclick="openCase()">Крутить</button>
     </div>
-  </div>
+</section>
+
+<div class="modal" id="modal">
+    <div class="modal-content">
+        <h2>🎁 Ваш приз</h2>
+        <div class="prize" id="prize"></div>
+        <button onclick="closeModal()" style="margin-top:20px;">Закрыть</button>
+    </div>
 </div>
 
-<!-- STANDOFF 2 -->
-<div id="standoff">
-  <div class="section-title">🎯 Standoff 2</div>
+<script>
+const prizes = [
+    "10 Diamonds",
+    "25 Diamonds",
+    "50 Diamonds",
+    "100 Diamonds",
+    "Скин",
+    "Ничего 😢"
+];
 
-  <div class="card">
-    <img src="standoff2.jpg">
-    <div class="card-content">
-      <h3>Gold Pack</h3>
-      <div class="price">149₽</div>
-      <a href="https://t.me/allkooru" target="_blank">
-        <button class="buy">Купить</button>
-      </a>
-    </div>
-  </div>
-</div>
+function openCase() {
+    const prize = prizes[Math.floor(Math.random() * prizes.length)];
+    document.getElementById("prize").innerText = prize;
+    document.getElementById("modal").style.display = "flex";
+}
 
-</div>
+function closeModal() {
+    document.getElementById("modal").style.display = "none";
+}
+</script>
 
 </body>
 </html>
