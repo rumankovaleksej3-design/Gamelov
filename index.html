@@ -2,77 +2,70 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Gamelov Store</title>
+<title>Gamelov — Game Store</title>
 
 <style>
-* {
-  box-sizing: border-box;
-}
-
 body {
   margin: 0;
   font-family: Arial, sans-serif;
   background: linear-gradient(180deg, #0f0f0f, #1a1a1a);
-  color: #fff;
+  color: white;
 }
 
 header {
-  background: #111;
   padding: 20px;
   text-align: center;
   font-size: 28px;
   font-weight: bold;
-  letter-spacing: 1px;
+  background: #111;
 }
 
 .container {
   padding: 20px;
-  max-width: 900px;
+  max-width: 600px;
   margin: auto;
 }
 
 .card {
-  background: #1c1c1c;
+  background: #1e1e1e;
   border-radius: 15px;
-  padding: 20px;
+  overflow: hidden;
   margin-bottom: 20px;
-  box-shadow: 0 0 15px rgba(0,0,0,0.6);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.card-content {
+  padding: 15px;
 }
 
 .card h3 {
-  margin-top: 0;
+  margin: 0 0 10px;
 }
 
 .price {
   font-size: 18px;
-  margin: 10px 0;
   color: #4caf50;
 }
 
 .buy {
-  display: block;
+  margin-top: 15px;
   width: 100%;
   padding: 12px;
-  background: linear-gradient(90deg, #4caf50, #2e7d32);
+  font-size: 16px;
+  background: #4caf50;
   border: none;
   border-radius: 8px;
-  font-size: 16px;
   color: white;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.buy:hover {
-  transform: scale(1.03);
-  box-shadow: 0 0 10px #4caf50;
-}
-
-footer {
-  text-align: center;
-  padding: 15px;
-  background: #111;
-  font-size: 14px;
-  color: #aaa;
+.buy:active {
+  background: #3e8e41;
 }
 </style>
 </head>
@@ -84,26 +77,28 @@ footer {
 <div class="container">
 
   <div class="card">
-    <h3>Free Fire — 100 Diamonds</h3>
-    <div class="price">Цена: 99₽</div>
-    <a href="https://t.me/allkooru" target="_blank">
-      <button class="buy">Купить</button>
-    </a>
+    <img src="freefire.jpg">
+    <div class="card-content">
+      <h3>Free Fire — 100 Diamonds</h3>
+      <div class="price">99₽</div>
+      <a href="https://t.me/allkooru" target="_blank">
+        <button class="buy">Купить</button>
+      </a>
+    </div>
   </div>
 
   <div class="card">
-    <h3>Standoff 2 — Gold Pack</h3>
-    <div class="price">Цена: 149₽</div>
-    <a href="https://t.me/allkooru" target="_blank">
-      <button class="buy">Купить</button>
-    </a>
+    <img src="standoff2.jpg">
+    <div class="card-content">
+      <h3>Standoff 2 — Gold Pack</h3>
+      <div class="price">149₽</div>
+      <a href="https://t.me/allkooru" target="_blank">
+        <button class="buy">Купить</button>
+      </a>
+    </div>
   </div>
 
 </div>
-
-<footer>
-  © 2026 Gamelov • Оплата через Telegram
-</footer>
 
 </body>
 </html>
