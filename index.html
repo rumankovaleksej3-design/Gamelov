@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>ChatNet</title>
+
 <style>
 body {
   margin: 0;
@@ -29,12 +30,6 @@ nav button {
 .page.active {
   display: block;
 }
-.post {
-  background: #020617;
-  padding: 15px;
-  margin-bottom: 10px;
-  border-radius: 10px;
-}
 input, textarea {
   width: 100%;
   padding: 10px;
@@ -42,21 +37,36 @@ input, textarea {
   border-radius: 8px;
   border: none;
 }
+.post {
+  background: #020617;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+}
 </style>
 </head>
 <body>
 
-<nav>
+<nav id="nav" style="display:none;">
   <button onclick="show('feed')">Лента</button>
   <button onclick="show('chat')">Чат</button>
   <button onclick="show('profile')">Профиль</button>
 </nav>
 
-<div id="feed" class="page active">
-  <h2>Лента</h2>
-  <div class="post">👤 Alex: Привет мир!</div>
+<!-- REGISTRATION -->
+<div id="auth" class="page active">
+  <h2>Регистрация</h2>
+  <input id="username" placeholder="Ваше имя">
+  <button onclick="register()">Войти</button>
 </div>
 
+<!-- FEED -->
+<div id="feed" class="page">
+  <h2>Лента</h2>
+  <div class="post">👤 <span id="me"></span>: Привет! Я в ChatNet 🚀</div>
+</div>
+
+<!-- CHAT -->
 <div id="chat" class="page">
   <h2>Чат</h2>
   <div id="messages"></div>
@@ -64,24 +74,51 @@ input, textarea {
   <button onclick="send()">Отправить</button>
 </div>
 
+<!-- PROFILE -->
 <div id="profile" class="page">
   <h2>Профиль</h2>
-  <input placeholder="Имя">
-  <textarea placeholder="О себе"></textarea>
+  <p>Имя: <b id="profileName"></b></p>
+  <button onclick="logout()">Выйти</button>
 </div>
 
 <script>
-function show(id) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+let user = localStorage.getItem("user");
+
+if (user) start();
+
+function register() {
+  const name = document.getElementById("username").value.trim();
+  if (!name) return alert("Введите имя");
+  localStorage.setItem("user", name);
+  start();
 }
+
+function start() {
+  user = localStorage.getItem("user");
+  document.getElementById("auth").style.display = "none";
+  document.getElementById("nav").style.display = "flex";
+  document.getElementById("me").innerText = user;
+  document.getElementById("profileName").innerText = user;
+  show("feed");
+}
+
+function logout() {
+  localStorage.removeItem("user");
+  location.reload();
+}
+
+function show(id) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
 function send() {
-  const msg = document.getElementById('msg').value;
+  const msg = document.getElementById("msg").value;
   if (!msg) return;
-  const div = document.createElement('div');
-  div.innerText = "Ты: " + msg;
-  document.getElementById('messages').appendChild(div);
-  document.getElementById('msg').value = "";
+  const div = document.createElement("div");
+  div.innerText = user + ": " + msg;
+  document.getElementById("messages").appendChild(div);
+  document.getElementById("msg").value = "";
 }
 </script>
 
