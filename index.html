@@ -5,39 +5,80 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ChatNet</title>
 
-<link rel="manifest" href="manifest.json">
-
 <style>
-body {
+*{box-sizing:border-box}
+body{
   margin:0;
-  font-family: system-ui, Arial;
-  background:#0f172a;
+  font-family:system-ui;
+  background:#0e1621;
   color:white;
 }
-.hidden { display:none }
-.container { max-width:500px; margin:auto; padding:15px }
-input, button {
-  width:100%;
+.hidden{display:none}
+.app{display:flex;height:100vh}
+
+/* ===== SIDEBAR ===== */
+.sidebar{
+  width:280px;
+  background:#17212b;
+  padding:10px;
+  overflow:auto;
+}
+.user{
+  padding:10px;
+  border-radius:8px;
+  cursor:pointer;
+}
+.user:hover{background:#202b36}
+.online{color:#2ecc71;font-size:12px}
+
+/* ===== CHAT ===== */
+.chat{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+}
+.header{
   padding:12px;
-  margin-top:10px;
+  background:#17212b;
+  font-weight:600;
+}
+.messages{
+  flex:1;
+  padding:10px;
+  overflow:auto;
+}
+.msg{
+  max-width:70%;
+  padding:8px 12px;
+  border-radius:12px;
+  margin:5px 0;
+}
+.me{background:#2b5278;margin-left:auto}
+.other{background:#182533}
+.footer{
+  padding:10px;
+  background:#17212b;
+  display:flex;
+  gap:10px;
+}
+input{
+  flex:1;
+  padding:10px;
   border-radius:10px;
   border:none;
 }
-button { background:#22c55e; color:black; font-weight:600 }
-.chat {
-  height:60vh;
-  overflow:auto;
-  background:#020617;
-  padding:10px;
-  border-radius:12px;
+button{
+  padding:10px 16px;
+  border:none;
+  border-radius:10px;
+  background:#2ecc71;
+  font-weight:600;
 }
-.msg { margin:6px 0 }
-.msg b { color:#38bdf8 }
-.top {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+.auth{
+  max-width:350px;
+  margin:100px auto;
 }
+.auth input, .auth button{width:100%;margin-top:10px}
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -47,144 +88,117 @@ button { background:#22c55e; color:black; font-weight:600 }
 
 <body>
 
-<div class="container">
-
 <!-- AUTH -->
-<div id="auth">
+<div id="auth" class="auth">
   <h2>ChatNet</h2>
   <input id="email" placeholder="Email">
   <input id="password" type="password" placeholder="Пароль">
   <button onclick="smartAuth()">Войти / Регистрация</button>
 </div>
 
-<!-- PROFILE -->
-<div id="profile" class="hidden">
-  <h3>Профиль</h3>
-  <input id="username" placeholder="Имя пользователя">
-  <input id="avatar" placeholder="URL аватара (необязательно)">
-  <button onclick="saveProfile()">Сохранить</button>
-</div>
+<!-- APP -->
+<div id="app" class="app hidden">
 
-<!-- CHAT -->
-<div id="chatPage" class="hidden">
-  <div class="top">
-    <b id="me"></b>
-    <button onclick="logout()">Выйти</button>
+  <div class="sidebar" id="users"></div>
+
+  <div class="chat">
+    <div class="header" id="chatTitle">Общий чат</div>
+    <div class="messages" id="messages"></div>
+    <div class="footer">
+      <input id="text" placeholder="Сообщение">
+      <button onclick="send()">➤</button>
+    </div>
   </div>
-
-  <div class="chat" id="chat"></div>
-
-  <input id="text" placeholder="Сообщение">
-  <button onclick="send()">Отправить</button>
-</div>
 
 </div>
 
 <script>
-/* ================= FIREBASE ================= */
+/* ===== FIREBASE ===== */
+firebase.initializeApp({
+  apiKey:"AIzaSyDioAafJRuJ4eMGK25-RsQb8M95CWlb1BY",
+  authDomain:"chatnet-2a748.firebaseapp.com",
+  projectId:"chatnet-2a748"
+});
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDioAafJRuJ4eMGK25-RsQb8M95CWlb1BY",
-  authDomain: "chatnet-2a748.firebaseapp.com",
-  projectId: "chatnet-2a748"
-};
+const auth=firebase.auth();
+const db=firebase.firestore();
 
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+let currentChat="global";
+let me;
 
-/* ================= UI ================= */
-
-function show(id){
-  document.getElementById("auth").classList.add("hidden");
-  document.getElementById("profile").classList.add("hidden");
-  document.getElementById("chatPage").classList.add("hidden");
-  document.getElementById(id).classList.remove("hidden");
-}
-
-/* ================= AUTH ================= */
-
+/* ===== AUTH ===== */
 async function smartAuth(){
-  const e = email.value;
-  const p = password.value;
-
-  try {
-    await auth.createUserWithEmailAndPassword(e,p);
-  } catch(err){
-    if(err.code === "auth/email-already-in-use"){
-      await auth.signInWithEmailAndPassword(e,p);
-    } else {
-      alert(err.message);
-    }
+  try{
+    await auth.createUserWithEmailAndPassword(email.value,password.value);
+  }catch(e){
+    if(e.code==="auth/email-already-in-use"){
+      await auth.signInWithEmailAndPassword(email.value,password.value);
+    }else alert(e.message);
   }
 }
 
-function logout(){
-  auth.signOut();
-}
+auth.onAuthStateChanged(async u=>{
+  if(!u)return;
+  me=u;
+  const ref=db.collection("users").doc(u.uid);
+  if(!(await ref.get()).exists){
+    ref.set({name:u.email.split("@")[0],online:true,admin:false});
+  }
+  document.getElementById("auth").classList.add("hidden");
+  document.getElementById("app").classList.remove("hidden");
+  loadUsers();
+  loadMessages();
+});
 
-/* ================= PROFILE ================= */
-
-function saveProfile(){
-  const u = auth.currentUser;
-  db.collection("users").doc(u.uid).set({
-    username: username.value || "User",
-    avatar: avatar.value || "",
-    admin: false
+/* ===== USERS ===== */
+function loadUsers(){
+  db.collection("users").onSnapshot(s=>{
+    users.innerHTML="";
+    s.forEach(d=>{
+      const u=d.data();
+      users.innerHTML+=`
+        <div class="user" onclick="openChat('${d.id}','${u.name}')">
+          ${u.name}<br>
+          <span class="online">${u.online?"online":"offline"}</span>
+        </div>`;
+    });
   });
 }
 
-/* ================= CHAT ================= */
-
-function startChat(user){
-  show("chatPage");
-  me.innerText = user.username;
+function openChat(uid,name){
+  currentChat=uid;
+  chatTitle.innerText=name;
   loadMessages();
 }
 
+/* ===== CHAT ===== */
+function loadMessages(){
+  messages.innerHTML="";
+  db.collection("messages")
+  .where("chat","==",currentChat)
+  .orderBy("time")
+  .onSnapshot(s=>{
+    messages.innerHTML="";
+    s.forEach(d=>{
+      const m=d.data();
+      messages.innerHTML+=`
+        <div class="msg ${m.uid===me.uid?"me":"other"}">
+          ${m.text}
+        </div>`;
+    });
+    messages.scrollTop=messages.scrollHeight;
+  });
+}
+
 function send(){
-  if(!text.value) return;
+  if(!text.value)return;
   db.collection("messages").add({
-    uid: auth.currentUser.uid,
-    text: text.value,
-    time: Date.now()
+    chat:currentChat,
+    uid:me.uid,
+    text:text.value,
+    time:Date.now()
   });
   text.value="";
-}
-
-function loadMessages(){
-  db.collection("messages").orderBy("time")
-  .onSnapshot(async snap=>{
-    chat.innerHTML="";
-    for(const doc of snap.docs){
-      const d = doc.data();
-      const u = await db.collection("users").doc(d.uid).get();
-      chat.innerHTML += `<div class="msg"><b>${u.data().username}</b>: ${d.text}</div>`;
-    }
-    chat.scrollTop = chat.scrollHeight;
-  });
-}
-
-/* ================= STATE ================= */
-
-auth.onAuthStateChanged(async user => {
-  if(!user){
-    show("auth");
-    return;
-  }
-
-  const snap = await db.collection("users").doc(user.uid).get();
-  if(!snap.exists){
-    show("profile");
-  } else {
-    startChat(snap.data());
-  }
-});
-
-/* ================= PWA ================= */
-
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("sw.js");
 }
 </script>
 
