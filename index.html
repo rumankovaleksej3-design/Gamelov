@@ -9,14 +9,14 @@
 *{box-sizing:border-box}
 body{
   margin:0;
-  font-family:system-ui;
+  font-family:system-ui,Arial;
   background:#0e1621;
   color:white;
 }
 .hidden{display:none}
 .app{display:flex;height:100vh}
 
-/* ===== SIDEBAR ===== */
+/* SIDEBAR */
 .sidebar{
   width:280px;
   background:#17212b;
@@ -25,20 +25,21 @@ body{
 }
 .user{
   padding:10px;
-  border-radius:8px;
+  border-radius:10px;
   cursor:pointer;
 }
 .user:hover{background:#202b36}
-.online{color:#2ecc71;font-size:12px}
+.user b{font-size:15px}
+.id{font-size:12px;color:#9ca3af}
 
-/* ===== CHAT ===== */
+/* CHAT */
 .chat{
   flex:1;
   display:flex;
   flex-direction:column;
 }
 .header{
-  padding:12px;
+  padding:14px;
   background:#17212b;
   font-weight:600;
 }
@@ -50,8 +51,8 @@ body{
 .msg{
   max-width:70%;
   padding:8px 12px;
-  border-radius:12px;
-  margin:5px 0;
+  border-radius:14px;
+  margin:6px 0;
 }
 .me{background:#2b5278;margin-left:auto}
 .other{background:#182533}
@@ -64,21 +65,23 @@ body{
 input{
   flex:1;
   padding:10px;
-  border-radius:10px;
+  border-radius:12px;
   border:none;
 }
 button{
   padding:10px 16px;
   border:none;
-  border-radius:10px;
+  border-radius:12px;
   background:#2ecc71;
   font-weight:600;
 }
+
+/* AUTH */
 .auth{
-  max-width:350px;
-  margin:100px auto;
+  max-width:360px;
+  margin:120px auto;
 }
-.auth input, .auth button{width:100%;margin-top:10px}
+.auth input,.auth button{width:100%;margin-top:10px}
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -102,7 +105,7 @@ button{
   <div class="sidebar" id="users"></div>
 
   <div class="chat">
-    <div class="header" id="chatTitle">Общий чат</div>
+    <div class="header" id="chatTitle">Чат</div>
     <div class="messages" id="messages"></div>
     <div class="footer">
       <input id="text" placeholder="Сообщение">
@@ -113,20 +116,20 @@ button{
 </div>
 
 <script>
-/* ===== FIREBASE ===== */
+/* FIREBASE */
 firebase.initializeApp({
   apiKey:"AIzaSyDioAafJRuJ4eMGK25-RsQb8M95CWlb1BY",
   authDomain:"chatnet-2a748.firebaseapp.com",
   projectId:"chatnet-2a748"
 });
 
-const auth=firebase.auth();
-const db=firebase.firestore();
+const auth = firebase.auth();
+const db = firebase.firestore();
 
-let currentChat="global";
 let me;
+let currentChat = "global";
 
-/* ===== AUTH ===== */
+/* AUTH */
 async function smartAuth(){
   try{
     await auth.createUserWithEmailAndPassword(email.value,password.value);
@@ -137,77 +140,41 @@ async function smartAuth(){
   }
 }
 
-auth.onAuthStateChanged(async u=>{
-  if(!u)return;
-  me=u;
-  const ref=db.collection("users").doc(u.uid);
-  if (!(await ref.get()).exists) {
-  const username = u.email.split("@")[0].toLowerCase();
-  const publicId = Math.floor(100000 + Math.random() * 900000);
+auth.onAuthStateChanged(async user=>{
+  if(!user) return;
+  me = user;
 
-  await ref.set({
-    username: username,
-    displayName: username,
-    publicId: publicId,
-    avatar: "",
-    online
-      documentt.getElementById("auth").classList.add("hidden");
+  const ref = db.collection("users").doc(user.uid);
+  if(!(await ref.get()).exists){
+    const username = user.email.split("@")[0].toLowerCase();
+    const publicId = Math.floor(100000 + Math.random() * 900000);
+
+    await ref.set({
+      username,
+      displayName: username,
+      publicId,
+      avatar: "",
+      online: true,
+      admin: false,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }
+
+  auth.classList?.add?.("hidden");
+  document.getElementById("auth").classList.add("hidden");
   document.getElementById("app").classList.remove("hidden");
+
   loadUsers();
   loadMessages();
 });
 
-/* ===== USERS ===== */
+/* USERS */
 function loadUsers(){
   db.collection("users").onSnapshot(s=>{
     users.innerHTML="";
     s.forEach(d=>{
       const u=d.data();
       users.innerHTML+=`
-        <div class="user" onclick="openChat('${d.id}','${u.name}')">
-          ${u.name}<br>
-          <span class="online">${u.online?"online":"offline"}</span>
-        </div>`;
-    });
-  });
-}
-
-function openChat(uid,name){
-  currentChat=uid;
-  chatTitle.innerText=name;
-  loadMessages();
-}
-
-/* ===== CHAT ===== */
-function loadMessages(){
-  messages.innerHTML="";
-  db.collection("messages")
-  .where("chat","==",currentChat)
-  .orderBy("time")
-  .onSnapshot(s=>{
-    messages.innerHTML="";
-    s.forEach(d=>{
-      const m=d.data();
-      messages.innerHTML+=`
-        <div class="msg ${m.uid===me.uid?"me":"other"}">
-          ${m.text}
-        </div>`;
-    });
-    messages.scrollTop=messages.scrollHeight;
-  });
-}
-
-function send(){
-  if(!text.value)return;
-  db.collection("messages").add({
-    chat:currentChat,
-    uid:me.uid,
-    text:text.value,
-    time:Date.now()
-  });
-  text.value="";
-}
-</script>
-
-</body>
-</html>
+        <div class="user" onclick="openChat('${d.id}','@${u.username}')">
+          <b>@${u.username}</b><br>
+          <span class="id">
