@@ -2,125 +2,134 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>ChatNet</title>
+<title>ChatNet — Вход</title>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <style>
-body {
-  margin: 0;
-  font-family: Arial;
-  background: #0f172a;
-  color: white;
+body { margin:0;font-family:Arial;background:#0f172a;color:white }
+.page { display:none;padding:20px }
+.page.active { display:block }
+input, button {
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border-radius:8px;
+  border:none;
 }
-nav {
-  display: flex;
-  justify-content: space-around;
-  background: #020617;
-  padding: 15px;
+button { background:#4caf50;color:white;font-size:16px }
+.chat-box {
+  height:300px;overflow:auto;
+  background:#020617;padding:10px;border-radius:10px;
 }
-nav button {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 16px;
-}
-.page {
-  display: none;
-  padding: 20px;
-}
-.page.active {
-  display: block;
-}
-input, textarea {
-  width: 100%;
-  padding: 10px;
-  margin-top: 10px;
-  border-radius: 8px;
-  border: none;
-}
-.post {
-  background: #020617;
-  padding: 15px;
-  margin-bottom: 10px;
-  border-radius: 10px;
-}
+.msg { margin-bottom:6px }
 </style>
 </head>
+
 <body>
 
-<nav id="nav" style="display:none;">
-  <button onclick="show('feed')">Лента</button>
-  <button onclick="show('chat')">Чат</button>
-  <button onclick="show('profile')">Профиль</button>
-</nav>
-
-<!-- REGISTRATION -->
+<!-- AUTH -->
 <div id="auth" class="page active">
-  <h2>Регистрация</h2>
-  <input id="username" placeholder="Ваше имя">
-  <button onclick="register()">Войти</button>
-</div>
-
-<!-- FEED -->
-<div id="feed" class="page">
-  <h2>Лента</h2>
-  <div class="post">👤 <span id="me"></span>: Привет! Я в ChatNet 🚀</div>
+  <h2>Вход / Регистрация</h2>
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Пароль">
+  <button onclick="login()">Войти</button>
+  <button onclick="register()">Регистрация</button>
 </div>
 
 <!-- CHAT -->
 <div id="chat" class="page">
-  <h2>Чат</h2>
-  <div id="messages"></div>
+  <h2>Онлайн чат</h2>
+  <div class="chat-box" id="messages"></div>
   <input id="msg" placeholder="Сообщение">
   <button onclick="send()">Отправить</button>
-</div>
-
-<!-- PROFILE -->
-<div id="profile" class="page">
-  <h2>Профиль</h2>
-  <p>Имя: <b id="profileName"></b></p>
   <button onclick="logout()">Выйти</button>
 </div>
 
 <script>
-let user = localStorage.getItem("user");
+// 🔥 ВСТАВЬ СЮДА СВОЙ CONFIG
+const firebaseConfig = {
+  apiKey: "API_KEY",
+  authDomain: "PROJECT.firebaseapp.com",
+  projectId: "PROJECT",
+};
 
-if (user) start();
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
-function register() {
-  const name = document.getElementById("username").value.trim();
-  if (!name) return alert("Введите имя");
-  localStorage.setItem("user", name);
-  start();
+auth.onAuthStateChanged(user => {
+  if (user) {
+    authPage(false);
+    loadMessages();
+  } else {
+    authPage(true);
+  }
+});
+
+function authPage(showAuth) {
+  document.getElementById("auth").classList.toggle("active", showAuth);
+  document.getElementById("chat").classList.toggle("active", !showAuth);
 }
 
-function start() {
-  user = localStorage.getItem("user");
-  document.getElementById("auth").style.display = "none";
-  document.getElementById("nav").style.display = "flex";
-  document.getElementById("me").innerText = user;
-  document.getElementById("profileName").innerText = user;
-  show("feed");
+function register() {
+  auth.createUserWithEmailAndPassword(email.value, password.value)
+  .catch(e => alert(e.message));
+}
+
+function login() {
+  auth.signInWithEmailAndPassword(email.value, password.value)
+  .catch(e => alert(e.message));
 }
 
 function logout() {
-  localStorage.removeItem("user");
-  location.reload();
-}
-
-function show(id) {
-  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
+  auth.signOut();
 }
 
 function send() {
-  const msg = document.getElementById("msg").value;
-  if (!msg) return;
-  const div = document.createElement("div");
-  div.innerText = user + ": " + msg;
-  document.getElementById("messages").appendChild(div);
-  document.getElementById("msg").value = "";
+  if (!msg.value) return;
+  db.collection("messages").add({
+    user: auth.currentUser.email,
+    text: msg.value,
+    time: Date.now()
+  });
+  msg.value = "";
+}
+
+function loadMessages() {
+  db.collection("messages").orderBy("time")
+  .onSnapshot(snap => {
+    messages.innerHTML = "";
+    snap.forEach(doc => {
+      const d = doc.data();
+      const div = document.createElement("div");
+      div.className = "msg";
+      div.innerText = d.user + ": " + d.text;
+      messages.appendChild(div);
+    });
+  });
 }
 </script>
 
-</body>
+</body><script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyDioAafJRuJ4eMGK25-RsQb8M95CWlb1BY",
+    authDomain: "chatnet-2a748.firebaseapp.com",
+    projectId: "chatnet-2a748",
+    storageBucket: "chatnet-2a748.firebasestorage.app",
+    messagingSenderId: "62156425194",
+    appId: "1:62156425194:web:580b1c319a6cf7268f1493"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+</script>
 </html>
