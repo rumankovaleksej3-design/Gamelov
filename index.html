@@ -141,10 +141,17 @@ auth.onAuthStateChanged(async u=>{
   if(!u)return;
   me=u;
   const ref=db.collection("users").doc(u.uid);
-  if(!(await ref.get()).exists){
-    ref.set({name:u.email.split("@")[0],online:true,admin:false});
-  }
-  document.getElementById("auth").classList.add("hidden");
+  if (!(await ref.get()).exists) {
+  const username = u.email.split("@")[0].toLowerCase();
+  const publicId = Math.floor(100000 + Math.random() * 900000);
+
+  await ref.set({
+    username: username,
+    displayName: username,
+    publicId: publicId,
+    avatar: "",
+    online
+      documentt.getElementById("auth").classList.add("hidden");
   document.getElementById("app").classList.remove("hidden");
   loadUsers();
   loadMessages();
