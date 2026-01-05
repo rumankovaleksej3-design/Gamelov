@@ -2,135 +2,171 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>ChatNet</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ChatNet</title>
+
+<link rel="manifest" href="manifest.json">
 
 <style>
 body {
   margin:0;
-  font-family: Arial, sans-serif;
+  font-family: system-ui, Arial;
   background:#0f172a;
   color:white;
 }
-.page { display:none; padding:20px }
-.page.active { display:block }
-
+.hidden { display:none }
+.container { max-width:500px; margin:auto; padding:15px }
 input, button {
   width:100%;
   padding:12px;
   margin-top:10px;
-  border-radius:8px;
+  border-radius:10px;
   border:none;
-  font-size:16px;
 }
-
-button {
-  background:#22c55e;
-  color:black;
-  font-weight:bold;
-}
-
-.chat-box {
-  height:300px;
+button { background:#22c55e; color:black; font-weight:600 }
+.chat {
+  height:60vh;
   overflow:auto;
   background:#020617;
   padding:10px;
-  border-radius:10px;
-  margin-bottom:10px;
+  border-radius:12px;
 }
-
-.msg {
-  margin-bottom:6px;
-  font-size:14px;
+.msg { margin:6px 0 }
+.msg b { color:#38bdf8 }
+.top {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
 }
 </style>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 
 <body>
 
+<div class="container">
+
 <!-- AUTH -->
-<div id="auth" class="page active">
-  <h2>Вход / Регистрация</h2>
-  <input id="email" type="email" placeholder="Email">
+<div id="auth">
+  <h2>ChatNet</h2>
+  <input id="email" placeholder="Email">
   <input id="password" type="password" placeholder="Пароль">
   <button onclick="login()">Войти</button>
   <button onclick="register()">Регистрация</button>
 </div>
 
-<!-- CHAT -->
-<div id="chat" class="page">
-  <h2>ChatNet</h2>
-  <div class="chat-box" id="messages"></div>
-  <input id="msg" placeholder="Сообщение">
-  <button onclick="send()">Отправить</button>
-  <button onclick="logout()">Выйти</button>
+<!-- PROFILE -->
+<div id="profile" class="hidden">
+  <h3>Профиль</h3>
+  <input id="username" placeholder="Имя пользователя">
+  <input id="avatar" placeholder="URL аватара">
+  <button onclick="saveProfile()">Сохранить</button>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+<!-- CHAT -->
+<div id="chatPage" class="hidden">
+  <div class="top">
+    <b id="me"></b>
+    <button onclick="logout()">Выйти</button>
+  </div>
 
+  <div class="chat" id="chat"></div>
+
+  <input id="text" placeholder="Сообщение">
+  <button onclick="send()">Отправить</button>
+</div>
+
+</div>
+
+<script>
 const firebaseConfig = {
   apiKey: "AIzaSyDioAafJRuJ4eMGK25-RsQb8M95CWlb1BY",
   authDomain: "chatnet-2a748.firebaseapp.com",
-  projectId: "chatnet-2a748",
+  projectId: "chatnet-2a748"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
-const authPage = document.getElementById("auth");
-const chatPage = document.getElementById("chat");
+auth.onAuthStateChanged(async user => {
+  if (!user) {
+    show("auth");
+    return;
+  }
 
-onAuthStateChanged(auth, user => {
-  if (user) {
-    authPage.classList.remove("active");
-    chatPage.classList.add("active");
-    loadMessages();
+  const snap = await db.collection("users").doc(user.uid).get();
+  if (!snap.exists) {
+    show("profile");
   } else {
-    authPage.classList.add("active");
-    chatPage.classList.remove("active");
+    startChat(snap.data());
   }
 });
 
-window.register = async () => {
-  await createUserWithEmailAndPassword(auth, email.value, password.value)
-    .catch(e => alert(e.message));
-};
+function show(id){
+  authDiv=auth; profileDiv=profile; chatDiv=chatPage;
+  authDiv.classList.add("hidden");
+  profileDiv.classList.add("hidden");
+  chatDiv.classList.add("hidden");
+  document.getElementById(id).classList.remove("hidden");
+}
 
-window.login = async () => {
-  await signInWithEmailAndPassword(auth, email.value, password.value)
-    .catch(e => alert(e.message));
-};
+function register(){
+  auth.createUserWithEmailAndPassword(email.value,password.value)
+  .catch(e=>alert(e.message));
+}
 
-window.logout = () => signOut(auth);
+function login(){
+  auth.signInWithEmailAndPassword(email.value,password.value)
+  .catch(e=>alert(e.message));
+}
 
-window.send = async () => {
-  if (!msg.value) return;
-  await addDoc(collection(db, "messages"), {
-    user: auth.currentUser.email,
-    text: msg.value,
-    time: Date.now()
-  });
-  msg.value = "";
-};
+function logout(){ auth.signOut(); }
 
-function loadMessages() {
-  const q = query(collection(db, "messages"), orderBy("time"));
-  onSnapshot(q, snap => {
-    messages.innerHTML = "";
-    snap.forEach(doc => {
-      const d = doc.data();
-      const div = document.createElement("div");
-      div.className = "msg";
-      div.textContent = d.user + ": " + d.text;
-      messages.appendChild(div);
-    });
+function saveProfile(){
+  const u=auth.currentUser;
+  db.collection("users").doc(u.uid).set({
+    username: username.value,
+    avatar: avatar.value || "",
+    admin: false
   });
 }
-</script>
 
+function startChat(user){
+  show("chatPage");
+  me.innerText = user.username;
+  loadMessages(user);
+}
+
+function send(){
+  if(!text.value) return;
+  db.collection("messages").add({
+    uid: auth.currentUser.uid,
+    text: text.value,
+    time: Date.now()
+  });
+  text.value="";
+}
+
+function loadMessages(user){
+  db.collection("messages").orderBy("time")
+  .onSnapshot(async snap=>{
+    chat.innerHTML="";
+    for(const doc of snap.docs){
+      const d=doc.data();
+      const u=await db.collection("users").doc(d.uid).get();
+      chat.innerHTML += `<div class="msg"><b>${u.data().username}</b>: ${d.text}</div>`;
+    }
+  });
+}
+
+// PWA
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js");
+}
+</script>
 </body>
 </html>
