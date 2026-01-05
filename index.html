@@ -54,15 +54,14 @@ button { background:#22c55e; color:black; font-weight:600 }
   <h2>ChatNet</h2>
   <input id="email" placeholder="Email">
   <input id="password" type="password" placeholder="Пароль">
-  <button onclick="login()">Войти</button>
-  <button onclick="register()">Регистрация</button>
+  <button onclick="smartAuth()">Войти / Регистрация</button>
 </div>
 
 <!-- PROFILE -->
 <div id="profile" class="hidden">
   <h3>Профиль</h3>
   <input id="username" placeholder="Имя пользователя">
-  <input id="avatar" placeholder="URL аватара">
+  <input id="avatar" placeholder="URL аватара (необязательно)">
   <button onclick="saveProfile()">Сохранить</button>
 </div>
 
@@ -82,6 +81,8 @@ button { background:#22c55e; color:black; font-weight:600 }
 </div>
 
 <script>
+/* ================= FIREBASE ================= */
+
 const firebaseConfig = {
   apiKey: "AIzaSyDioAafJRuJ4eMGK25-RsQb8M95CWlb1BY",
   authDomain: "chatnet-2a748.firebaseapp.com",
@@ -92,53 +93,53 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-auth.onAuthStateChanged(async user => {
-  if (!user) {
-    show("auth");
-    return;
-  }
-
-  const snap = await db.collection("users").doc(user.uid).get();
-  if (!snap.exists) {
-    show("profile");
-  } else {
-    startChat(snap.data());
-  }
-});
+/* ================= UI ================= */
 
 function show(id){
-  authDiv=auth; profileDiv=profile; chatDiv=chatPage;
-  authDiv.classList.add("hidden");
-  profileDiv.classList.add("hidden");
-  chatDiv.classList.add("hidden");
+  document.getElementById("auth").classList.add("hidden");
+  document.getElementById("profile").classList.add("hidden");
+  document.getElementById("chatPage").classList.add("hidden");
   document.getElementById(id).classList.remove("hidden");
 }
 
-function register(){
-  auth.createUserWithEmailAndPassword(email.value,password.value)
-  .catch(e=>alert(e.message));
+/* ================= AUTH ================= */
+
+async function smartAuth(){
+  const e = email.value;
+  const p = password.value;
+
+  try {
+    await auth.createUserWithEmailAndPassword(e,p);
+  } catch(err){
+    if(err.code === "auth/email-already-in-use"){
+      await auth.signInWithEmailAndPassword(e,p);
+    } else {
+      alert(err.message);
+    }
+  }
 }
 
-function login(){
-  auth.signInWithEmailAndPassword(email.value,password.value)
-  .catch(e=>alert(e.message));
+function logout(){
+  auth.signOut();
 }
 
-function logout(){ auth.signOut(); }
+/* ================= PROFILE ================= */
 
 function saveProfile(){
-  const u=auth.currentUser;
+  const u = auth.currentUser;
   db.collection("users").doc(u.uid).set({
-    username: username.value,
+    username: username.value || "User",
     avatar: avatar.value || "",
     admin: false
   });
 }
 
+/* ================= CHAT ================= */
+
 function startChat(user){
   show("chatPage");
   me.innerText = user.username;
-  loadMessages(user);
+  loadMessages();
 }
 
 function send(){
@@ -151,22 +152,41 @@ function send(){
   text.value="";
 }
 
-function loadMessages(user){
+function loadMessages(){
   db.collection("messages").orderBy("time")
   .onSnapshot(async snap=>{
     chat.innerHTML="";
     for(const doc of snap.docs){
-      const d=doc.data();
-      const u=await db.collection("users").doc(d.uid).get();
+      const d = doc.data();
+      const u = await db.collection("users").doc(d.uid).get();
       chat.innerHTML += `<div class="msg"><b>${u.data().username}</b>: ${d.text}</div>`;
     }
+    chat.scrollTop = chat.scrollHeight;
   });
 }
 
-// PWA
+/* ================= STATE ================= */
+
+auth.onAuthStateChanged(async user => {
+  if(!user){
+    show("auth");
+    return;
+  }
+
+  const snap = await db.collection("users").doc(user.uid).get();
+  if(!snap.exists){
+    show("profile");
+  } else {
+    startChat(snap.data());
+  }
+});
+
+/* ================= PWA ================= */
+
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js");
 }
 </script>
+
 </body>
 </html>
