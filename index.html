@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -9,17 +9,15 @@
 *{box-sizing:border-box}
 body{
   margin:0;
-  font-family:system-ui, -apple-system;
+  font-family:system-ui;
   background:#0e1621;
   color:white;
 }
 .hidden{display:none}
-.app{display:flex;height:100vh}
-
-/* AUTH */
 .auth{
   max-width:360px;
   margin:120px auto;
+  padding:20px;
 }
 .auth h2{text-align:center}
 .auth input,.auth button{
@@ -33,25 +31,10 @@ body{
   background:#2ecc71;
   font-weight:600;
 }
-
-/* SIDEBAR */
-.sidebar{
-  width:280px;
-  background:#17212b;
-  padding:10px;
-  overflow:auto;
-}
-.user{
-  padding:10px;
-  border-radius:8px;
-  cursor:pointer;
-}
-.user:hover{background:#202b36}
-.online{font-size:12px;color:#2ecc71}
-
-/* CHAT */
 .chat{
-  flex:1;
+  max-width:700px;
+  margin:auto;
+  height:100vh;
   display:flex;
   flex-direction:column;
 }
@@ -66,19 +49,18 @@ body{
   overflow:auto;
 }
 .msg{
-  max-width:70%;
+  margin:6px 0;
   padding:8px 12px;
   border-radius:12px;
-  margin:6px 0;
-  word-wrap:break-word;
+  max-width:70%;
 }
 .me{background:#2b5278;margin-left:auto}
 .other{background:#182533}
 .footer{
-  padding:10px;
-  background:#17212b;
   display:flex;
   gap:10px;
+  padding:10px;
+  background:#17212b;
 }
 .footer input{
   flex:1;
@@ -106,111 +88,102 @@ body{
 <div id="auth" class="auth">
   <h2>ChatNet</h2>
   <input id="email" placeholder="Email">
-  <input id="password" type="password" placeholder="Пароль (6+ символов)">
+  <input id="password" type="password" placeholder="Пароль (6+)">
   <button onclick="smartAuth()">Войти / Регистрация</button>
 </div>
 
-<!-- APP -->
-<div id="app" class="app hidden">
-
-  <div class="sidebar" id="users"></div>
-
-  <div class="chat">
-    <div class="header" id="chatTitle">Общий чат</div>
-    <div class="messages" id="messages"></div>
-    <div class="footer">
-      <input id="text" placeholder="Сообщение">
-      <button onclick="send()">➤</button>
-    </div>
+<!-- CHAT -->
+<div id="chat" class="chat hidden">
+  <div class="header">
+    Общий чат
+    <button onclick="logout()" style="float:right">Выйти</button>
   </div>
-
+  <div id="messages" class="messages"></div>
+  <div class="footer">
+    <input id="text" placeholder="Сообщение">
+    <button onclick="send()">➤</button>
+  </div>
 </div>
 
 <script>
-// ===== FIREBASE CONFIG =====
+/* ===== FIREBASE ===== */
 firebase.initializeApp({
-  apiKey:"AIzaSyDioAafJRuJ4eMGK25-RsQb8M95CWlb1BY",
-  authDomain:"chatnet-2a748.firebaseapp.com",
-  projectId:"chatnet-2a748"
+  apiKey: "AIzaSyDioAafJRuJ4eMGK25-RsQb8M95CWlb1BY",
+  authDomain: "chatnet-2a748.firebaseapp.com",
+  projectId: "chatnet-2a748"
 });
 
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-let me;
-let currentChat = "global";
-
-// ===== AUTH =====
+/* ===== AUTH ===== */
 async function smartAuth(){
-  if(!email.value || !password.value){
+  const e = email.value.trim();
+  const p = password.value.trim();
+
+  if(!e || !p){
     alert("Введите email и пароль");
     return;
   }
 
   try{
-    await auth.signInWithEmailAndPassword(email.value,password.value);
-  }catch(e){
-    if(e.code === "auth/user-not-found"){
-      await auth.createUserWithEmailAndPassword(email.value,password.value);
+    await auth.signInWithEmailAndPassword(e,p);
+  }catch(err){
+    if(err.code==="auth/user-not-found"){
+      try{
+        await auth.createUserWithEmailAndPassword(e,p);
+      }catch(e2){
+        alert(e2.message);
+      }
     }else{
-      alert(e.message);
+      alert(err.message);
     }
   }
 }
 
-auth.onAuthStateChanged(async user=>{
-  if(!user) return;
+function logout(){
+  auth.signOut();
+}
 
-  me = user;
+/* ===== STATE ===== */
+auth.onAuthStateChanged(async user=>{
+  if(!user){
+    authDiv();
+    return;
+  }
 
   const ref = db.collection("users").doc(user.uid);
-  if(!(await ref.get()).exists){
+  const snap = await ref.get();
+  if(!snap.exists){
     await ref.set({
       name: user.email.split("@")[0],
-      online: true,
-      admin: false
+      created: Date.now()
     });
   }
 
-  auth.classList.add("hidden");
-  app.classList.remove("hidden");
-
-  loadUsers();
+  chatDiv();
   loadMessages();
 });
 
-// ===== USERS =====
-function loadUsers(){
-  db.collection("users").onSnapshot(s=>{
-    users.innerHTML="";
-    s.forEach(d=>{
-      const u=d.data();
-      users.innerHTML+=`
-        <div class="user" onclick="openChat('${d.id}','${u.name}')">
-          ${u.name}<br>
-          <span class="online">${u.online?"online":"offline"}</span>
-        </div>`;
-    });
-  });
+function authDiv(){
+  document.getElementById("auth").classList.remove("hidden");
+  document.getElementById("chat").classList.add("hidden");
+}
+function chatDiv(){
+  document.getElementById("auth").classList.add("hidden");
+  document.getElementById("chat").classList.remove("hidden");
 }
 
-function openChat(uid,name){
-  currentChat = uid;
-  chatTitle.innerText = name;
-  loadMessages();
-}
-
-// ===== CHAT =====
+/* ===== CHAT ===== */
 function loadMessages(){
   db.collection("messages")
-    .where("chat","==",currentChat)
     .orderBy("time")
-    .onSnapshot(s=>{
+    .onSnapshot(snap=>{
       messages.innerHTML="";
-      s.forEach(d=>{
-        const m=d.data();
-        messages.innerHTML+=`
-          <div class="msg ${m.uid===me.uid?"me":"other"}">
+      snap.forEach(doc=>{
+        const m = doc.data();
+        messages.innerHTML += `
+          <div class="msg ${m.uid===auth.currentUser.uid?"me":"other"}">
             ${m.text}
           </div>`;
       });
@@ -221,8 +194,7 @@ function loadMessages(){
 function send(){
   if(!text.value) return;
   db.collection("messages").add({
-    chat: currentChat,
-    uid: me.uid,
+    uid: auth.currentUser.uid,
     text: text.value,
     time: Date.now()
   });
