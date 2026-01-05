@@ -3,165 +3,132 @@
 <head>
 <meta charset="UTF-8">
 <title>ChatNet</title>
-
-<!-- Firebase CDN (COMPAT — важно!) -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 body {
-  margin: 0;
-  font-family: Arial;
-  background: #0f172a;
-  color: white;
+  margin:0;
+  font-family: Arial, sans-serif;
+  background:#0f172a;
+  color:white;
 }
-
-.container {
-  max-width: 400px;
-  margin: auto;
-  padding: 20px;
-}
+.page { display:none; padding:20px }
+.page.active { display:block }
 
 input, button {
-  width: 100%;
-  padding: 12px;
-  margin-top: 10px;
-  border-radius: 8px;
-  border: none;
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border-radius:8px;
+  border:none;
+  font-size:16px;
 }
 
 button {
-  background: #4caf50;
-  color: white;
-  font-size: 16px;
+  background:#22c55e;
+  color:black;
+  font-weight:bold;
 }
 
-.page { display: none; }
-.page.active { display: block; }
-
 .chat-box {
-  height: 300px;
-  overflow-y: auto;
-  background: #020617;
-  padding: 10px;
-  border-radius: 10px;
-  margin-bottom: 10px;
+  height:300px;
+  overflow:auto;
+  background:#020617;
+  padding:10px;
+  border-radius:10px;
+  margin-bottom:10px;
 }
 
 .msg {
-  margin-bottom: 6px;
-  font-size: 14px;
+  margin-bottom:6px;
+  font-size:14px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
-
-  <!-- AUTH -->
-  <div id="auth" class="page active">
-    <h2>Вход / Регистрация</h2>
-    <input id="email" placeholder="Email">
-    <input id="password" type="password" placeholder="Пароль">
-    <button onclick="login()">Войти</button>
-    <button onclick="register()">Регистрация</button>
-  </div>
-
-  <!-- CHAT -->
-  <div id="chat" class="page">
-    <h2>ChatNet</h2>
-    <div class="chat-box" id="messages"></div>
-    <input id="msg" placeholder="Сообщение">
-    <button onclick="send()">Отправить</button>
-    <button onclick="logout()">Выйти</button>
-  </div>
-
+<!-- AUTH -->
+<div id="auth" class="page active">
+  <h2>Вход / Регистрация</h2>
+  <input id="email" type="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Пароль">
+  <button onclick="login()">Войти</button>
+  <button onclick="register()">Регистрация</button>
 </div>
 
-<script>
-/* 🔥 ТВОЙ FIREBASE CONFIG */
+<!-- CHAT -->
+<div id="chat" class="page">
+  <h2>ChatNet</h2>
+  <div class="chat-box" id="messages"></div>
+  <input id="msg" placeholder="Сообщение">
+  <button onclick="send()">Отправить</button>
+  <button onclick="logout()">Выйти</button>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
 const firebaseConfig = {
   apiKey: "AIzaSyDioAafJRuJ4eMGK25-RsQb8M95CWlb1BY",
   authDomain: "chatnet-2a748.firebaseapp.com",
   projectId: "chatnet-2a748",
-  storageBucket: "chatnet-2a748.firebasestorage.app",
-  messagingSenderId: "62156425194",
-  appId: "1:62156425194:web:580b1c319a6cf7268f1493"
 };
 
-/* INIT */
-firebase.initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-const auth = firebase.auth();
-const db = firebase.firestore();
+const authPage = document.getElementById("auth");
+const chatPage = document.getElementById("chat");
 
-/* AUTH STATE */
-auth.onAuthStateChanged(user => {
+onAuthStateChanged(auth, user => {
   if (user) {
-    showChat();
+    authPage.classList.remove("active");
+    chatPage.classList.add("active");
     loadMessages();
   } else {
-    showAuth();
+    authPage.classList.add("active");
+    chatPage.classList.remove("active");
   }
 });
 
-function showAuth() {
-  authPage(true);
-}
-
-function showChat() {
-  authPage(false);
-}
-
-function authPage(showAuth) {
-  document.getElementById("auth").classList.toggle("active", showAuth);
-  document.getElementById("chat").classList.toggle("active", !showAuth);
-}
-
-/* AUTH */
-function register() {
-  auth.createUserWithEmailAndPassword(email.value, password.value)
+window.register = async () => {
+  await createUserWithEmailAndPassword(auth, email.value, password.value)
     .catch(e => alert(e.message));
-}
+};
 
-function login() {
-  auth.signInWithEmailAndPassword(email.value, password.value)
+window.login = async () => {
+  await signInWithEmailAndPassword(auth, email.value, password.value)
     .catch(e => alert(e.message));
-}
+};
 
-function logout() {
-  auth.signOut();
-}
+window.logout = () => signOut(auth);
 
-/* CHAT */
-function send() {
+window.send = async () => {
   if (!msg.value) return;
-
-  db.collection("messages").add({
+  await addDoc(collection(db, "messages"), {
     user: auth.currentUser.email,
     text: msg.value,
     time: Date.now()
   });
-
   msg.value = "";
-}
+};
 
 function loadMessages() {
-  db.collection("messages")
-    .orderBy("time")
-    .onSnapshot(snap => {
-      messages.innerHTML = "";
-      snap.forEach(doc => {
-        const d = doc.data();
-        const div = document.createElement("div");
-        div.className = "msg";
-        div.textContent = d.user + ": " + d.text;
-        messages.appendChild(div);
-      });
-      messages.scrollTop = messages.scrollHeight;
+  const q = query(collection(db, "messages"), orderBy("time"));
+  onSnapshot(q, snap => {
+    messages.innerHTML = "";
+    snap.forEach(doc => {
+      const d = doc.data();
+      const div = document.createElement("div");
+      div.className = "msg";
+      div.textContent = d.user + ": " + d.text;
+      messages.appendChild(div);
     });
+  });
 }
 </script>
 
