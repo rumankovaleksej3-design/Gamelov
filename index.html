@@ -22,8 +22,10 @@ body{
   max-width:420px;
   display:flex;
   flex-direction:column;
+  height:100vh;
 }
 
+/* HEADER */
 header{
   background:#020617;
   padding:10px;
@@ -32,12 +34,12 @@ header{
   align-items:center;
 }
 
+/* CHAT */
 .chat{
   flex:1;
   overflow-y:auto;
   padding:10px;
 }
-
 .msg{
   margin:6px 0;
   padding:8px 12px;
@@ -50,20 +52,19 @@ header{
   margin-left:auto;
 }
 
+/* INPUT */
 .input{
   display:flex;
   gap:6px;
   padding:8px;
   background:#020617;
 }
-
-input{
+input,textarea{
   flex:1;
   padding:10px;
   border-radius:8px;
   border:none;
 }
-
 button{
   padding:10px;
   border-radius:8px;
@@ -72,6 +73,7 @@ button{
   font-weight:600;
 }
 
+/* USERS */
 .user{
   padding:8px;
   cursor:pointer;
@@ -80,7 +82,30 @@ button{
 .user:hover{background:#020617}
 .activeUser{background:#1e293b}
 
-small{opacity:.6}
+/* POSTS */
+.post{
+  background:#020617;
+  padding:10px;
+  border-radius:10px;
+  margin-bottom:10px;
+}
+
+/* TABS */
+.tabs{
+  display:flex;
+  background:#020617;
+}
+.tab{
+  flex:1;
+  text-align:center;
+  padding:10px;
+  opacity:.6;
+  cursor:pointer;
+}
+.tab.active{
+  opacity:1;
+  background:#1e293b;
+}
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -102,11 +127,11 @@ small{opacity:.6}
 <!-- PROFILE -->
 <div id="profile" class="hidden">
   <h3>Введите ник</h3>
-  <input id="username" placeholder="Никнейм"><br><br>
+  <input id="username" placeholder="Ник"><br><br>
   <button onclick="saveProfile()">Сохранить</button>
 </div>
 
-<!-- CHAT -->
+<!-- APP -->
 <div id="app" class="hidden">
 
 <header>
@@ -114,17 +139,40 @@ small{opacity:.6}
   <button onclick="logout()" style="background:#ef4444">Выйти</button>
 </header>
 
-<div class="chat" id="chat"></div>
+<!-- CHATS -->
+<div id="chats">
+  <div class="chat" id="chat"></div>
 
-<div class="input">
-  <input id="text" placeholder="Сообщение">
-  <button onclick="send()">➤</button>
+  <div class="input">
+    <input id="text" placeholder="Сообщение">
+    <button onclick="send()">➤</button>
+  </div>
+
+  <h4 style="margin:10px">Пользователи</h4>
+  <div id="users"></div>
+  <small id="chatTitle" style="margin:10px">Выберите пользователя</small>
 </div>
 
-<h4 style="padding:10px;margin:0">Пользователи</h4>
-<div id="users"></div>
+<!-- NEWS -->
+<div id="news" class="hidden" style="padding:10px">
+  <textarea id="postText" placeholder="Что нового?"></textarea><br><br>
+  <button onclick="createPost()">Опубликовать</button>
+  <hr>
+  <div id="posts"></div>
+</div>
 
-<small id="chatTitle" style="padding:10px">Выберите пользователя</small>
+<!-- FRIENDS -->
+<div id="friends" class="hidden" style="padding:10px">
+  <h3>Друзья</h3>
+  <div id="friendsList"></div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="openTab('chats',this)">💬 Чаты</div>
+  <div class="tab" onclick="openTab('news',this)">📰 Новости</div>
+  <div class="tab" onclick="openTab('friends',this)">👥 Друзья</div>
+</div>
 
 </div>
 </div>
@@ -140,34 +188,28 @@ const auth=firebase.auth();
 const db=firebase.firestore();
 
 let currentChat=null;
-let unsubscribeMessages=null;
+let unsub=null;
 
 /* AUTH */
 async function login(){
-  if(password.value.length<6){
-    alert("Пароль минимум 6 символов");
-    return;
-  }
   try{
     await auth.createUserWithEmailAndPassword(email.value,password.value);
-  }catch(e){
+  }catch{
     await auth.signInWithEmailAndPassword(email.value,password.value);
   }
 }
 
 auth.onAuthStateChanged(async user=>{
   if(!user){ show("auth"); return; }
-  const doc=await db.collection("users").doc(user.uid).get();
-  if(!doc.exists){ show("profile"); }
-  else startApp(doc.data().username);
+  const d=await db.collection("users").doc(user.uid).get();
+  if(!d.exists) show("profile");
+  else startApp(d.data().username);
 });
 
 /* PROFILE */
 async function saveProfile(){
-  if(!username.value){ alert("Введите ник"); return; }
-  await db.collection("users").doc(auth.currentUser.uid).set({
-    username:username.value
-  });
+  await db.collection("users").doc(auth.currentUser.uid)
+    .set({username:username.value});
   startApp(username.value);
 }
 
@@ -176,78 +218,93 @@ function startApp(name){
   show("app");
   me.innerText="Вы: "+name;
   loadUsers();
+  loadPosts();
+  loadFriends();
+}
+
+/* TABS */
+function openTab(id,el){
+  ["chats","news","friends"].forEach(x=>document.getElementById(x).classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  el.classList.add("active");
 }
 
 /* USERS */
 function loadUsers(){
-  db.collection("users").onSnapshot(snap=>{
+  db.collection("users").onSnapshot(s=>{
     users.innerHTML="";
-    snap.forEach(d=>{
+    s.forEach(d=>{
       if(d.id===auth.currentUser.uid) return;
-      users.innerHTML+=`
-        <div class="user" onclick="openChat('${d.id}','${d.data().username}',this)">
-          ${d.data().username}
-        </div>`;
+      users.innerHTML+=`<div class="user"
+        onclick="openChat('${d.id}','${d.data().username}',this)">
+        ${d.data().username}
+      </div>`;
     });
   });
 }
 
 /* CHAT */
-function chatId(a,b){ return [a,b].sort().join("_"); }
-
+function cid(a,b){return[a,b].sort().join("_");}
 function openChat(uid,name,el){
   document.querySelectorAll(".user").forEach(u=>u.classList.remove("activeUser"));
   el.classList.add("activeUser");
 
-  currentChat=chatId(auth.currentUser.uid,uid);
+  currentChat=cid(auth.currentUser.uid,uid);
   chatTitle.innerText="Чат с "+name;
-  chat.innerHTML="";
 
-  if(unsubscribeMessages) unsubscribeMessages();
-
-  unsubscribeMessages=db.collection("chats")
-    .doc(currentChat)
-    .collection("messages")
-    .orderBy("time")
-    .onSnapshot(snap=>{
+  if(unsub) unsub();
+  unsub=db.collection("chats").doc(currentChat)
+    .collection("messages").orderBy("time")
+    .onSnapshot(s=>{
       chat.innerHTML="";
-      snap.forEach(d=>{
+      s.forEach(d=>{
         const m=d.data();
-        chat.innerHTML+=`
-          <div class="msg ${m.uid===auth.currentUser.uid?"me":""}">
-            ${m.text}
-          </div>`;
+        chat.innerHTML+=`<div class="msg ${m.uid===auth.currentUser.uid?"me":""}">${m.text}</div>`;
       });
       chat.scrollTop=chat.scrollHeight;
     });
 }
 
 function send(){
-  if(!currentChat){
-    alert("Выберите пользователя");
-    return;
-  }
-  if(!text.value) return;
-
-  db.collection("chats")
-    .doc(currentChat)
+  if(!currentChat||!text.value) return;
+  db.collection("chats").doc(currentChat)
     .collection("messages")
-    .add({
-      uid:auth.currentUser.uid,
-      text:text.value,
-      time:Date.now()
-    });
-
+    .add({uid:auth.currentUser.uid,text:text.value,time:Date.now()});
   text.value="";
 }
 
-text.addEventListener("keydown",e=>{
-  if(e.key==="Enter") send();
-});
+/* POSTS */
+function loadPosts(){
+  db.collection("posts").orderBy("time","desc")
+    .onSnapshot(s=>{
+      posts.innerHTML="";
+      s.forEach(d=>{
+        const p=d.data();
+        posts.innerHTML+=`<div class="post"><b>${p.username}</b><br>${p.text}</div>`;
+      });
+    });
+}
+function createPost(){
+  if(!postText.value) return;
+  db.collection("posts").add({
+    uid:auth.currentUser.uid,
+    username:me.innerText.replace("Вы: ",""),
+    text:postText.value,
+    time:Date.now()
+  });
+  postText.value="";
+}
 
-/* LOGOUT */
-function logout(){
-  auth.signOut();
+/* FRIENDS */
+function loadFriends(){
+  db.collection("users").onSnapshot(s=>{
+    friendsList.innerHTML="";
+    s.forEach(d=>{
+      if(d.id!==auth.currentUser.uid)
+        friendsList.innerHTML+=`<div class="user">${d.data().username}</div>`;
+    });
+  });
 }
 
 /* UI */
@@ -255,6 +312,7 @@ function show(id){
   ["auth","profile","app"].forEach(x=>document.getElementById(x).classList.add("hidden"));
   document.getElementById(id).classList.remove("hidden");
 }
+function logout(){auth.signOut();}
 </script>
 </body>
 </html>
