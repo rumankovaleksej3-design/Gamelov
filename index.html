@@ -11,49 +11,103 @@ body{
   font-family:system-ui;
   background:#0e1621;
   color:white;
+  height:100vh;
+  display:flex;
+  flex-direction:column;
 }
 .hidden{display:none}
-input,button{
-  width:100%;
-  padding:12px;
-  margin-top:10px;
-  border-radius:10px;
+input,textarea,button{
+  padding:10px;
+  border-radius:8px;
   border:none;
 }
+textarea{resize:none;}
 button{
   background:#2ecc71;
   font-weight:600;
   cursor:pointer;
 }
+
+/* CONTAINER */
 .container{
   max-width:400px;
-  margin:20px auto 80px;
+  margin:0 auto;
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  height:100%;
 }
-.chat{
-  height:35vh;
-  overflow:auto;
-  background:#020617;
+
+/* CHAT HEADER */
+.chat-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
   padding:10px;
-  border-radius:12px;
-}
-.msg{margin:6px 0}
-.me{color:#38bdf8}
-.user{
-  cursor:pointer;
-  padding:8px;
+  background:#020617;
   border-bottom:1px solid #222;
 }
-.user:hover{background:#111}
+.profile{
+  display:flex;
+  align-items:center;
+}
+.avatar{
+  width:32px; height:32px;
+  background:#38bdf8;
+  border-radius:50%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  margin-right:8px;
+}
+.logout{
+  background:#e74c3c;
+  color:white;
+  padding:6px 12px;
+}
+
+/* CHAT CONTAINER */
+.chat-container{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  position:relative;
+}
+.chat{
+  flex:1;
+  overflow-y:auto;
+  padding:10px;
+}
+.msg{margin:6px 0;}
+.me{color:#38bdf8;}
+
+/* INPUT */
+.input-container{
+  display:flex;
+  padding:6px;
+  background:#020617;
+  gap:6px;
+}
+.input-container input{
+  flex:1;
+}
+
+/* POSTS */
+.post{
+  background:#020617;
+  padding:12px;
+  border-radius:12px;
+  margin-bottom:12px;
+}
+.post b{font-size:14px}
+small{opacity:.6}
 
 /* TABS */
 .tabs{
-  position:fixed;
-  bottom:0;
-  left:0;
-  right:0;
-  background:#020617;
   display:flex;
   border-top:1px solid #222;
+  background:#020617;
 }
 .tab{
   flex:1;
@@ -74,7 +128,6 @@ button{
 </head>
 
 <body>
-
 <div class="container">
 
 <!-- AUTH -->
@@ -92,34 +145,40 @@ button{
   <button onclick="saveProfile()">Сохранить</button>
 </div>
 
-<!-- MAIN -->
+<!-- MAIN APP -->
 <div id="main" class="hidden">
 
 <!-- CHATS -->
 <div id="chats">
-  <b id="me"></b>
-  <button onclick="logout()">Выйти</button>
+  <div class="chat-header">
+    <div class="profile">
+      <div class="avatar">👤</div>
+      <span id="me">Вы: Ник</span>
+    </div>
+    <button class="logout" onclick="logout()">Выйти</button>
+  </div>
+
+  <div class="chat-container">
+    <div class="chat" id="chat"></div>
+    <div class="input-container">
+      <input id="text" placeholder="Сообщение">
+      <button onclick="send()">Отправить</button>
+    </div>
+  </div>
 
   <h4>Пользователи</h4>
   <div id="users"></div>
-
   <hr>
   <small id="chatTitle">Выберите пользователя</small>
-
-  <div class="chat" id="chat"></div>
-
-  <input id="text" placeholder="Сообщение">
-  <button onclick="send()">Отправить</button>
 </div>
 
 <!-- NEWS -->
 <div id="news" class="hidden">
   <h3>Новости</h3>
-  <div class="chat">
-    <div class="msg">📰 Добро пожаловать в ChatNet</div>
-    <div class="msg">🔥 Скоро появятся посты пользователей</div>
-    <div class="msg">🚀 Проект развивается</div>
-  </div>
+  <textarea id="postText" placeholder="Что нового?"></textarea>
+  <button onclick="createPost()">Опубликовать</button>
+  <hr>
+  <div id="posts"></div>
 </div>
 
 <!-- FRIENDS -->
@@ -128,7 +187,6 @@ button{
   <div id="friendsList"></div>
 </div>
 
-</div>
 </div>
 
 <!-- TABS -->
@@ -145,13 +203,13 @@ firebase.initializeApp({
   authDomain:"chatnet-2a748.firebaseapp.com",
   projectId:"chatnet-2a748"
 });
-
 const auth = firebase.auth();
 const db = firebase.firestore();
-let currentChatId = null;
+let currentChatId=null;
 
 /* AUTH */
 async function authSmart(){
+  if(password.value.length<6){ alert("Пароль минимум 6 символов"); return; }
   try{
     await auth.createUserWithEmailAndPassword(email.value,password.value);
   }catch(e){
@@ -163,45 +221,33 @@ async function authSmart(){
 
 auth.onAuthStateChanged(async user=>{
   if(!user){ show("auth"); return; }
-
-  const ref = db.collection("users").doc(user.uid);
-  const snap = await ref.get();
-
-  if(!snap.exists){
-    show("profile");
-  }else{
-    ref.update({online:true});
-    startApp(snap.data());
-  }
+  const ref=db.collection("users").doc(user.uid);
+  const snap=await ref.get();
+  if(!snap.exists){ show("profile"); } else { startApp(); }
 });
 
 /* PROFILE */
 async function saveProfile(){
-  if(!username.value) return;
-  const u=auth.currentUser;
-  await db.collection("users").doc(u.uid).set({
-    username:username.value,
-    online:true
-  });
-  startApp({username:username.value});
+  if(!username.value){ alert("Введите ник"); return; }
+  await db.collection("users").doc(auth.currentUser.uid).set({username:username.value,online:true});
+  startApp();
 }
 
-/* MAIN */
-function startApp(user){
+/* START APP */
+function startApp(){
   show("main");
   tabs.classList.remove("hidden");
-  me.innerText="Вы: "+user.username;
+  me.innerText="Вы: "+(username.value||"");
   loadUsers();
+  loadPosts();
   loadFriends();
+  openTab('chats',document.querySelector(".tab"));
 }
 
 /* TABS */
 function openTab(id,el){
-  ["chats","news","friends"].forEach(t=>{
-    document.getElementById(t).classList.add("hidden");
-  });
+  ["chats","news","friends"].forEach(t=>document.getElementById(t).classList.add("hidden"));
   document.getElementById(id).classList.remove("hidden");
-
   document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
   el.classList.add("active");
 }
@@ -213,41 +259,55 @@ function loadUsers(){
     snap.forEach(d=>{
       if(d.id===auth.currentUser.uid) return;
       const u=d.data();
-      users.innerHTML+=`
-        <div class="user" onclick="openChat('${d.id}','${u.username}')">
-          ${u.username} ${u.online?"🟢":"⚪"}
-        </div>`;
+      users.innerHTML+=`<div class="user" onclick="openChat('${d.id}','${u.username}')">${u.username} ${u.online?"🟢":"⚪"}</div>`;
     });
   });
 }
-
+function getChatId(a,b){ return [a,b].sort().join("_"); }
 function openChat(uid,name){
-  currentChatId=[auth.currentUser.uid,uid].sort().join("_");
+  currentChatId=getChatId(auth.currentUser.uid,uid);
   chatTitle.innerText="Чат с "+name;
   loadMessages();
 }
-
 function send(){
   if(!text.value||!currentChatId) return;
-  db.collection("privateChats").doc(currentChatId)
-  .collection("messages").add({
-    uid:auth.currentUser.uid,
-    text:text.value,
-    time:Date.now()
+  db.collection("privateChats").doc(currentChatId).collection("messages").add({
+    uid:auth.currentUser.uid,text:text.value,time:Date.now()
   });
   text.value="";
 }
-
 function loadMessages(){
-  db.collection("privateChats").doc(currentChatId)
-  .collection("messages").orderBy("time")
-  .onSnapshot(snap=>{
-    chat.innerHTML="";
-    snap.forEach(d=>{
-      const m=d.data();
-      chat.innerHTML+=`<div class="msg ${m.uid===auth.currentUser.uid?"me":""}">${m.text}</div>`;
+  if(!currentChatId) return;
+  db.collection("privateChats").doc(currentChatId).collection("messages")
+    .orderBy("time").onSnapshot(snap=>{
+      chat.innerHTML="";
+      snap.forEach(d=>{
+        const m=d.data();
+        chat.innerHTML+=`<div class="msg ${m.uid===auth.currentUser.uid?"me":""}">${m.text}</div>`;
+      });
+      chat.scrollTop=chat.scrollHeight;
     });
-    chat.scrollTop=chat.scrollHeight;
+}
+
+/* POSTS */
+async function createPost(){
+  if(!postText.value) return;
+  const user=await db.collection("users").doc(auth.currentUser.uid).get();
+  await db.collection("posts").add({
+    uid:auth.currentUser.uid,
+    username:user.data().username,
+    text:postText.value,
+    time:Date.now()
+  });
+  postText.value="";
+}
+function loadPosts(){
+  db.collection("posts").orderBy("time","desc").onSnapshot(snap=>{
+    posts.innerHTML="";
+    snap.forEach(d=>{
+      const p=d.data();
+      posts.innerHTML+=`<div class="post"><b>${p.username}</b> <small>${new Date(p.time).toLocaleString()}</small><div>${p.text}</div></div>`;
+    });
   });
 }
 
@@ -257,24 +317,23 @@ function loadFriends(){
     friendsList.innerHTML="";
     snap.forEach(d=>{
       if(d.id===auth.currentUser.uid) return;
-      friendsList.innerHTML+=`
-        <div class="user">👤 ${d.data().username}</div>`;
+      friendsList.innerHTML+=`<div class="user">👤 ${d.data().username}</div>`;
     });
   });
 }
 
-/* UI */
-function show(id){
-  ["auth","profile","main"].forEach(i=>{
-    document.getElementById(i).classList.add("hidden");
-  });
-  document.getElementById(id).classList.remove("hidden");
-}
-
+/* LOGOUT */
 async function logout(){
   await db.collection("users").doc(auth.currentUser.uid).update({online:false});
   auth.signOut();
 }
+
+/* UI */
+function show(id){
+  ["auth","profile","main"].forEach(i=>document.getElementById(i).classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+}
+text.addEventListener("keydown",e=>{ if(e.key==="Enter") send(); });
 </script>
 </body>
 </html>
