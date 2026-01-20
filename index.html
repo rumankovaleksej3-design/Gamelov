@@ -108,20 +108,19 @@ async function authSmart(){
     return;
   }
   try{
-    const cred = await auth.createUserWithEmailAndPassword(email.value,password.value);
-    await cred.user.sendEmailVerification();
-    alert("Подтвердите почту 📩");
+    await auth.createUserWithEmailAndPassword(email.value,password.value);
   }catch(e){
     if(e.code==="auth/email-already-in-use"){
       await auth.signInWithEmailAndPassword(email.value,password.value);
-    }else alert(e.message);
+    }else{
+      alert(e.message);
+    }
   }
 }
 
+/* AUTH STATE */
 auth.onAuthStateChanged(async user=>{
-  if(!user){ show("auth"); return; }
-  if(!user.emailVerified){
-    alert("Подтвердите email 📩");
+  if(!user){
     show("auth");
     return;
   }
