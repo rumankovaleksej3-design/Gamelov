@@ -23,6 +23,7 @@ input,button{
 button{
   background:#2ecc71;
   font-weight:600;
+  cursor:pointer;
 }
 .container{
   max-width:400px;
@@ -37,6 +38,7 @@ button{
 }
 .msg{margin:6px 0}
 .me{color:#38bdf8}
+small{opacity:.7}
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -52,15 +54,16 @@ button{
 <div id="auth">
   <h2>ChatNet</h2>
   <input id="email" placeholder="Email">
-  <input id="password" type="password" placeholder="Пароль">
+  <input id="password" type="password" placeholder="Пароль (мин. 6)">
   <button onclick="authSmart()">Войти / Регистрация</button>
+  <button onclick="resend()">Отправить письмо ещё раз</button>
 </div>
 
 <!-- PROFILE -->
 <div id="profile" class="hidden">
   <h3>Профиль</h3>
   <input id="username" placeholder="Никнейм">
-  <input id="avatar" placeholder="URL аватара">
+  <input id="avatar" placeholder="URL аватара (необязательно)">
   <input id="about" placeholder="О себе">
   <button onclick="saveProfile()">Сохранить</button>
 </div>
@@ -86,38 +89,77 @@ firebase.initializeApp({
   projectId:"chatnet-2a748"
 });
 
-const auth=firebase.auth();
-const db=firebase.firestore();
+const auth = firebase.auth();
+const db = firebase.firestore();
 
 /* AUTH */
 async function authSmart(){
+  if(!email.value || !password.value){
+    alert("Заполните все поля");
+    return;
+  }
+  if(password.value.length < 6){
+    alert("Пароль минимум 6 символов");
+    return;
+  }
+
   try{
-    await auth.createUserWithEmailAndPassword(email.value,password.value);
+    const cred = await auth.createUserWithEmailAndPassword(
+      email.value,
+      password.value
+    );
+    await cred.user.sendEmailVerification();
+    alert("Письмо для подтверждения отправлено 📩");
   }catch(e){
     if(e.code==="auth/email-already-in-use"){
       await auth.signInWithEmailAndPassword(email.value,password.value);
-    }else alert(e.message);
+    }else{
+      alert(e.message);
+    }
   }
 }
 
-auth.onAuthStateChanged(async user=>{
-  if(!user){ show("auth"); return; }
+async function resend(){
+  const user = auth.currentUser;
+  if(!user){
+    alert("Сначала войдите");
+    return;
+  }
+  await user.sendEmailVerification();
+  alert("Письмо отправлено повторно 📩");
+}
 
-  const ref=db.collection("users").doc(user.uid);
-  const snap=await ref.get();
+auth.onAuthStateChanged(async user=>{
+  if(!user){
+    show("auth");
+    return;
+  }
+
+  if(!user.emailVerified){
+    show("auth");
+    alert("Подтвердите email 📩");
+    return;
+  }
+
+  const ref = db.collection("users").doc(user.uid);
+  const snap = await ref.get();
 
   if(!snap.exists){
     show("profile");
   }else{
     startChat(snap.data());
+    ref.update({online:true});
   }
 });
 
 /* PROFILE */
 async function saveProfile(){
-  const u=auth.currentUser;
-  if(!username.value) return alert("Введите ник");
+  if(!username.value){
+    alert("Введите никнейм");
+    return;
+  }
 
+  const u = auth.currentUser;
   await db.collection("users").doc(u.uid).set({
     username: username.value,
     avatar: avatar.value || "",
@@ -126,7 +168,7 @@ async function saveProfile(){
     createdAt: Date.now()
   });
 
-  startChat({username:username.value});
+  startChat({username: username.value});
 }
 
 /* CHAT */
@@ -140,6 +182,7 @@ function send(){
   if(!text.value) return;
   db.collection("messages").add({
     uid: auth.currentUser.uid,
+    username: me.innerText,
     text: text.value,
     time: Date.now()
   });
@@ -148,33 +191,38 @@ function send(){
 
 function loadMessages(){
   db.collection("messages").orderBy("time")
-  .onSnapshot(async snap=>{
+  .onSnapshot(snap=>{
     chat.innerHTML="";
-    for(const d of snap.docs){
-      const m=d.data();
-      const u=await db.collection("users").doc(m.uid).get();
-      chat.innerHTML+=`
+    snap.forEach(d=>{
+      const m = d.data();
+      chat.innerHTML += `
         <div class="msg ${m.uid===auth.currentUser.uid?"me":""}">
-          <b>${u.data().username}</b>: ${m.text}
+          <b>${m.username}</b>: ${m.text}
         </div>`;
-    }
+    });
+    chat.scrollTop = chat.scrollHeight;
   });
 }
 
-function logout(){
+async function logout(){
+  const u = auth.currentUser;
+  if(u){
+    await db.collection("users").doc(u.uid).update({online:false});
+  }
   auth.signOut();
 }
 
+/* UI */
 function show(id){
-  authDiv=auth;
-  authDiv=document.getElementById("auth");
-  profileDiv=document.getElementById("profile");
-  chatDiv=document.getElementById("chatPage");
-  authDiv.classList.add("hidden");
-  profileDiv.classList.add("hidden");
-  chatDiv.classList.add("hidden");
+  ["auth","profile","chatPage"].forEach(i=>{
+    document.getElementById(i).classList.add("hidden");
+  });
   document.getElementById(id).classList.remove("hidden");
 }
+
+text.addEventListener("keydown",e=>{
+  if(e.key==="Enter") send();
+});
 </script>
 
 </body>
