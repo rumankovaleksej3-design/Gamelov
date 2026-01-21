@@ -227,7 +227,7 @@ button{
 
 </div>
 
-<!-- PROFILE VIEW (чужой профиль) -->
+<!-- PROFILE VIEW -->
 <div id="profileView" class="hidden">
   <button onclick="back()">← Назад</button>
   <div class="profileAvatar" id="pAvatar"></div>
@@ -236,7 +236,7 @@ button{
   <button onclick="writeFromProfile()">Написать сообщение</button>
 </div>
 
-<!-- MY PROFILE (новый, редактируемый) -->
+<!-- MY PROFILE -->
 <div id="myProfile" class="hidden">
   <button onclick="back()">← Назад</button>
   <div class="profileAvatar" id="myAvatarPreview">👤</div>
@@ -302,7 +302,7 @@ function openTab(id,el){
   el.classList.add("active");
 }
 
-/* USERS + CHAT */
+/* USERS */
 const cid=(a,b)=>[a,b].sort().join("_");
 
 function loadUsers(){
@@ -312,18 +312,43 @@ function loadUsers(){
       if(d.id!==auth.currentUser.uid){
         const u=d.data();
         users.innerHTML+=`
-          <div class="user" onclick="openChat('${d.id}')">
-            <div class="avatar" onclick="event.stopPropagation();openProfile('${d.id}')">${u.avatar||"👤"}</div>
-            ${u.username}
-            <span class="status">${u.online?"🟢":"⚪"}</span>
-          </div>`;
+        <div class="user" onclick="openChat('${d.id}')">
+          <div class="avatar" onclick="event.stopPropagation();openProfile('${d.id}')">${u.avatar||"👤"}</div>
+          ${u.username}
+          <span class="status">${u.online?"🟢":"⚪"}</span>
+        </div>`;
       }
     });
   });
 }
 
+/* CHAT */
 function openChat(uid){
-  currentChat=cid(auth.currentUser.uid,uid);
+  currentChat = cid(auth.currentUser.uid, uid);
+
+  if(unsub) unsub();
+
+  unsub = db.collection("chats")
+    .doc(currentChat)
+    .collection("messages")
+    .orderBy("time")
+    .onSnapshot(s=>{
+      chat.innerHTML="";
+      s.forEach(d=>{
+        const m=d.data();
+        const t=new Date(m.time).toLocaleTimeString([],{
+          hour:'2-digit',minute:'2-digit'
+        });
+        chat.innerHTML+=`
+          <div class="msg ${m.uid===auth.currentUser.uid?"me":""}"
+            onclick="reply('${m.text}')">
+            ${m.replyTo?`<div class="reply-preview">↩ ${m.replyTo}</div>`:""}
+            ${m.text}
+            <small>${t}</small>
+          </div>`;
+      });
+      chat.scrollTop=chat.scrollHeight;
+    });
 }
 
 /* SEND */
