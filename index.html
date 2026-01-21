@@ -40,8 +40,8 @@ header{
 }
 .tab{
   flex:1;
-  text-align:center;
   padding:12px;
+  text-align:center;
   cursor:pointer;
   opacity:.6;
 }
@@ -96,14 +96,15 @@ button{
   padding:10px;
   background:#22c55e;
   font-weight:600;
+  cursor:pointer;
 }
 
 /* USERS */
 .user{
   padding:10px;
   display:flex;
-  gap:10px;
   align-items:center;
+  gap:10px;
   cursor:pointer;
   border-bottom:1px solid #222;
 }
@@ -126,14 +127,14 @@ button{
 }
 
 /* PROFILE */
-#profilePage{
+#profileView{
   flex:1;
   padding:20px;
   text-align:center;
 }
 .profileAvatar{font-size:48px}
 .profileName{font-size:20px;font-weight:700}
-.profileBio{opacity:.8}
+.profileBio{opacity:.8;margin-top:8px}
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -161,8 +162,8 @@ button{
   <button onclick="saveProfile()">Сохранить</button>
 </div>
 
-<!-- APP -->
-<div id="app" class="hidden">
+<!-- MAIN APP -->
+<div id="main" class="hidden">
 
 <header>
   <span id="me"></span>
@@ -193,18 +194,20 @@ button{
   <div id="friendsList"></div>
 </div>
 
-<!-- PROFILE PAGE -->
-<div id="profilePage" class="hidden">
-  <button onclick="back()">← Назад</button>
-  <div class="profileAvatar" id="pAvatar"></div>
-  <div class="profileName" id="pName"></div>
-  <div class="profileBio" id="pBio"></div>
-</div>
-
 <div class="tabs">
   <div class="tab active" onclick="openTab('chats',this)">💬 Чаты</div>
   <div class="tab" onclick="openTab('news',this)">📰 Новости</div>
   <div class="tab" onclick="openTab('friends',this)">👥 Друзья</div>
+</div>
+
+</div>
+
+<!-- PROFILE VIEW -->
+<div id="profileView" class="hidden">
+  <button onclick="backToMain()">← Назад</button>
+  <div class="profileAvatar" id="pAvatar"></div>
+  <div class="profileName" id="pName"></div>
+  <div class="profileBio" id="pBio"></div>
 </div>
 
 </div>
@@ -218,7 +221,9 @@ firebase.initializeApp({
 
 const auth=firebase.auth();
 const db=firebase.firestore();
+
 let currentChat=null;
+let unsub=null;
 
 /* AUTH */
 async function login(){
@@ -232,7 +237,7 @@ auth.onAuthStateChanged(async u=>{
   d.exists?startApp(d.data()):show("profileSetup");
 });
 
-/* PROFILE */
+/* PROFILE SETUP */
 async function saveProfile(){
   await db.collection("users").doc(auth.currentUser.uid).set({
     username:username.value,
@@ -244,7 +249,7 @@ async function saveProfile(){
 
 /* START */
 function startApp(u){
-  show("app");
+  show("main");
   me.innerText=`${u.avatar||"👤"} ${u.username}`;
   loadUsers(); loadPosts(); loadFriends();
 }
@@ -257,7 +262,9 @@ function openTab(id,el){
   el.classList.add("active");
 }
 
-/* USERS */
+/* USERS + CHAT */
+const cid=(a,b)=>[a,b].sort().join("_");
+
 function loadUsers(){
   db.collection("users").onSnapshot(s=>{
     users.innerHTML="";
@@ -265,12 +272,49 @@ function loadUsers(){
       if(d.id!==auth.currentUser.uid){
         const u=d.data();
         users.innerHTML+=`
-          <div class="user" onclick="openProfile('${d.id}')">
-            <div class="avatar">${u.avatar||"👤"}</div>${u.username}
+          <div class="user" onclick="openChat('${d.id}','${u.username}')">
+            <div class="avatar" onclick="event.stopPropagation();openProfile('${d.id}')">
+              ${u.avatar||"👤"}
+            </div>
+            ${u.username}
           </div>`;
       }
     });
   });
+}
+
+function openChat(uid,name){
+  currentChat=cid(auth.currentUser.uid,uid);
+  if(unsub)unsub();
+  unsub=db.collection("chats").doc(currentChat)
+    .collection("messages").orderBy("time")
+    .onSnapshot(s=>{
+      chat.innerHTML="";
+      s.forEach(d=>{
+        const m=d.data();
+        const t=new Date(m.time).toLocaleTimeString([],{
+          hour:'2-digit',minute:'2-digit'
+        });
+        chat.innerHTML+=`
+          <div class="msg ${m.uid===auth.currentUser.uid?"me":""}">
+            ${m.text}
+            <small>${t}</small>
+          </div>`;
+      });
+      chat.scrollTop=chat.scrollHeight;
+    });
+}
+
+function send(){
+  if(!currentChat||!text.value)return;
+  db.collection("chats").doc(currentChat)
+    .collection("messages")
+    .add({
+      uid:auth.currentUser.uid,
+      text:text.value,
+      time:Date.now()
+    });
+  text.value="";
 }
 
 /* PROFILE VIEW */
@@ -280,11 +324,11 @@ async function openProfile(uid){
   pAvatar.innerText=u.avatar||"👤";
   pName.innerText=u.username;
   pBio.innerText=u.bio||"";
-  show("profilePage");
+  show("profileView");
 }
-function back(){show("app")}
+function backToMain(){show("main")}
 
-/* POSTS */
+/* NEWS */
 function loadPosts(){
   db.collection("posts").orderBy("time","desc").onSnapshot(s=>{
     posts.innerHTML="";
@@ -310,17 +354,14 @@ function loadFriends(){
     friendsList.innerHTML="";
     s.forEach(d=>{
       if(d.id!==auth.currentUser.uid)
-        friendsList.innerHTML+=`<div class="user">${d.data().username}</div>`;
+        friendsList.innerHTML+=`<div class="user" onclick="openProfile('${d.id}')">${d.data().username}</div>`;
     });
   });
 }
 
-/* CHAT (базово) */
-function send(){}
-
 /* UI */
 function show(id){
-  ["auth","profileSetup","app","profilePage"]
+  ["auth","profileSetup","main","profileView"]
     .forEach(x=>document.getElementById(x).classList.add("hidden"));
   document.getElementById(id).classList.remove("hidden");
 }
