@@ -33,22 +33,35 @@ header{
   align-items:center;
 }
 
-/* CHATS */
+/* TABS */
+.tabs{
+  display:flex;
+  background:#020617;
+}
+.tab{
+  flex:1;
+  text-align:center;
+  padding:12px;
+  cursor:pointer;
+  opacity:.6;
+}
+.tab.active{
+  opacity:1;
+  background:#1e293b;
+}
+
+/* CHAT */
 #chats{
   flex:1;
   display:flex;
   flex-direction:column;
-  overflow:hidden;
 }
-
 .chat{
   flex:1;
   overflow-y:auto;
   padding:10px;
   background:#020617;
 }
-
-/* MESSAGE */
 .msg{
   max-width:80%;
   padding:8px 12px;
@@ -56,25 +69,12 @@ header{
   border-radius:12px;
   background:#1e293b;
 }
-.me{
-  margin-left:auto;
-  background:#2563eb;
-}
+.me{margin-left:auto;background:#2563eb}
 .msg small{
   display:block;
   font-size:11px;
   opacity:.6;
   text-align:right;
-  margin-top:4px;
-}
-
-/* REPLY */
-.reply-preview{
-  font-size:12px;
-  opacity:.7;
-  border-left:2px solid #60a5fa;
-  padding-left:6px;
-  margin-bottom:4px;
 }
 
 /* INPUT */
@@ -96,46 +96,44 @@ button{
   padding:10px;
   background:#22c55e;
   font-weight:600;
-  cursor:pointer;
-}
-
-/* EMOJI */
-#emojiPanel{
-  padding:8px;
-  background:#020617;
-}
-#emojiPanel span{
-  font-size:20px;
-  cursor:pointer;
-  margin:4px;
 }
 
 /* USERS */
 .user{
-  padding:8px;
-  border-bottom:1px solid #222;
-  cursor:pointer;
-}
-.user:hover{background:#1e293b}
-.activeUser{background:#334155}
-
-/* TABS */
-.tabs{
+  padding:10px;
   display:flex;
-  background:#020617;
-  flex-shrink:0;
-}
-.tab{
-  flex:1;
-  padding:12px;
-  text-align:center;
+  gap:10px;
+  align-items:center;
   cursor:pointer;
-  opacity:.6;
+  border-bottom:1px solid #222;
 }
-.tab.active{
-  opacity:1;
-  background:#1e293b;
+.avatar{
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  background:#334155;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
+
+/* POSTS */
+.post{
+  background:#020617;
+  padding:10px;
+  border-radius:10px;
+  margin-bottom:10px;
+}
+
+/* PROFILE */
+#profilePage{
+  flex:1;
+  padding:20px;
+  text-align:center;
+}
+.profileAvatar{font-size:48px}
+.profileName{font-size:20px;font-weight:700}
+.profileBio{opacity:.8}
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -154,10 +152,12 @@ button{
   <button onclick="login()">Войти / Регистрация</button>
 </div>
 
-<!-- PROFILE -->
-<div id="profile" class="hidden">
-  <h3>Ник</h3>
-  <input id="username"><br><br>
+<!-- PROFILE SETUP -->
+<div id="profileSetup" class="hidden">
+  <h3>Профиль</h3>
+  <input id="username" placeholder="Ник"><br><br>
+  <input id="avatar" placeholder="Аватар (эмодзи)"><br><br>
+  <textarea id="bio" placeholder="О себе"></textarea><br><br>
   <button onclick="saveProfile()">Сохранить</button>
 </div>
 
@@ -169,41 +169,44 @@ button{
   <button onclick="logout()" style="background:#ef4444">Выйти</button>
 </header>
 
+<!-- CHATS -->
 <div id="chats">
-
   <div class="chat" id="chat"></div>
-
-  <!-- reply box -->
-  <div id="replyBox" class="hidden" style="padding:6px;background:#020617">
-    Ответ: <span id="replyText"></span>
-    <button onclick="cancelReply()">✖</button>
-  </div>
-
-  <div id="emojiPanel" class="hidden">
-    <span onclick="addEmoji('😀')">😀</span>
-    <span onclick="addEmoji('😂')">😂</span>
-    <span onclick="addEmoji('❤️')">❤️</span>
-    <span onclick="addEmoji('🔥')">🔥</span>
-    <span onclick="addEmoji('👍')">👍</span>
-  </div>
-
   <div class="input">
-    <button onclick="toggleEmoji()">😀</button>
     <input id="text" placeholder="Сообщение">
     <button onclick="send()">➤</button>
   </div>
-
   <div style="padding:10px;font-weight:600">Пользователи</div>
   <div id="users"></div>
-  <small id="chatTitle" style="padding:10px">Выберите пользователя</small>
+</div>
 
+<!-- NEWS -->
+<div id="news" class="hidden" style="padding:10px;overflow:auto;flex:1">
+  <textarea id="postText" placeholder="Что нового?"></textarea><br><br>
+  <button onclick="createPost()">Опубликовать</button>
+  <hr>
+  <div id="posts"></div>
+</div>
+
+<!-- FRIENDS -->
+<div id="friends" class="hidden" style="padding:10px;overflow:auto;flex:1">
+  <div id="friendsList"></div>
+</div>
+
+<!-- PROFILE PAGE -->
+<div id="profilePage" class="hidden">
+  <button onclick="back()">← Назад</button>
+  <div class="profileAvatar" id="pAvatar"></div>
+  <div class="profileName" id="pName"></div>
+  <div class="profileBio" id="pBio"></div>
 </div>
 
 <div class="tabs">
   <div class="tab active" onclick="openTab('chats',this)">💬 Чаты</div>
+  <div class="tab" onclick="openTab('news',this)">📰 Новости</div>
+  <div class="tab" onclick="openTab('friends',this)">👥 Друзья</div>
 </div>
 
-</div>
 </div>
 
 <script>
@@ -215,38 +218,43 @@ firebase.initializeApp({
 
 const auth=firebase.auth();
 const db=firebase.firestore();
-
 let currentChat=null;
-let unsub=null;
-let replyMessage=null;
 
 /* AUTH */
 async function login(){
-  try{
-    await auth.createUserWithEmailAndPassword(email.value,password.value);
-  }catch{
-    await auth.signInWithEmailAndPassword(email.value,password.value);
-  }
+  try{await auth.createUserWithEmailAndPassword(email.value,password.value);}
+  catch{await auth.signInWithEmailAndPassword(email.value,password.value);}
 }
 
 auth.onAuthStateChanged(async u=>{
   if(!u){show("auth");return;}
   const d=await db.collection("users").doc(u.uid).get();
-  d.exists?startApp(d.data().username):show("profile");
+  d.exists?startApp(d.data()):show("profileSetup");
 });
 
 /* PROFILE */
 async function saveProfile(){
-  await db.collection("users").doc(auth.currentUser.uid)
-    .set({username:username.value});
-  startApp(username.value);
+  await db.collection("users").doc(auth.currentUser.uid).set({
+    username:username.value,
+    avatar:avatar.value||"👤",
+    bio:bio.value||""
+  });
+  startApp({username:username.value,avatar:avatar.value});
 }
 
 /* START */
-function startApp(name){
+function startApp(u){
   show("app");
-  me.innerText="Вы: "+name;
-  loadUsers();
+  me.innerText=`${u.avatar||"👤"} ${u.username}`;
+  loadUsers(); loadPosts(); loadFriends();
+}
+
+/* TABS */
+function openTab(id,el){
+  ["chats","news","friends"].forEach(x=>document.getElementById(x).classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  el.classList.add("active");
 }
 
 /* USERS */
@@ -254,82 +262,66 @@ function loadUsers(){
   db.collection("users").onSnapshot(s=>{
     users.innerHTML="";
     s.forEach(d=>{
-      if(d.id!==auth.currentUser.uid)
-        users.innerHTML+=`<div class="user"
-          onclick="openChat('${d.id}','${d.data().username}',this)">
-          ${d.data().username}
-        </div>`;
+      if(d.id!==auth.currentUser.uid){
+        const u=d.data();
+        users.innerHTML+=`
+          <div class="user" onclick="openProfile('${d.id}')">
+            <div class="avatar">${u.avatar||"👤"}</div>${u.username}
+          </div>`;
+      }
     });
   });
 }
 
-/* CHAT */
-const cid=(a,b)=>[a,b].sort().join("_");
-function openChat(uid,name,el){
-  document.querySelectorAll(".user").forEach(u=>u.classList.remove("activeUser"));
-  el.classList.add("activeUser");
+/* PROFILE VIEW */
+async function openProfile(uid){
+  const d=await db.collection("users").doc(uid).get();
+  const u=d.data();
+  pAvatar.innerText=u.avatar||"👤";
+  pName.innerText=u.username;
+  pBio.innerText=u.bio||"";
+  show("profilePage");
+}
+function back(){show("app")}
 
-  currentChat=cid(auth.currentUser.uid,uid);
-  chatTitle.innerText="Чат с "+name;
-  if(unsub)unsub();
-
-  unsub=db.collection("chats").doc(currentChat)
-    .collection("messages").orderBy("time")
-    .onSnapshot(s=>{
-      chat.innerHTML="";
-      s.forEach(d=>{
-        const m=d.data();
-        const t=new Date(m.time).toLocaleTimeString([],{
-          hour:'2-digit',minute:'2-digit'
-        });
-        chat.innerHTML+=`
-          <div class="msg ${m.uid===auth.currentUser.uid?"me":""}"
-            onclick='reply("${m.text}")'>
-            ${m.replyTo?`<div class="reply-preview">↩ ${m.replyTo.text}</div>`:""}
-            ${m.text}
-            <small>${t}</small>
-          </div>`;
-      });
-      chat.scrollTop=chat.scrollHeight;
+/* POSTS */
+function loadPosts(){
+  db.collection("posts").orderBy("time","desc").onSnapshot(s=>{
+    posts.innerHTML="";
+    s.forEach(d=>{
+      const p=d.data();
+      posts.innerHTML+=`<div class="post"><b>${p.username}</b><br>${p.text}</div>`;
     });
+  });
+}
+function createPost(){
+  if(!postText.value)return;
+  db.collection("posts").add({
+    username:me.innerText,
+    text:postText.value,
+    time:Date.now()
+  });
+  postText.value="";
 }
 
-function send(){
-  if(!currentChat||!text.value)return;
-  db.collection("chats").doc(currentChat)
-    .collection("messages")
-    .add({
-      uid:auth.currentUser.uid,
-      text:text.value,
-      time:Date.now(),
-      replyTo:replyMessage
+/* FRIENDS */
+function loadFriends(){
+  db.collection("users").onSnapshot(s=>{
+    friendsList.innerHTML="";
+    s.forEach(d=>{
+      if(d.id!==auth.currentUser.uid)
+        friendsList.innerHTML+=`<div class="user">${d.data().username}</div>`;
     });
-  text.value="";
-  cancelReply();
+  });
 }
 
-/* REPLY */
-function reply(text){
-  replyMessage={text};
-  replyText.innerText=text;
-  replyBox.classList.remove("hidden");
-}
-function cancelReply(){
-  replyMessage=null;
-  replyBox.classList.add("hidden");
-}
-
-/* EMOJI */
-function toggleEmoji(){
-  emojiPanel.classList.toggle("hidden");
-}
-function addEmoji(e){
-  text.value+=e;
-}
+/* CHAT (базово) */
+function send(){}
 
 /* UI */
 function show(id){
-  ["auth","profile","app"].forEach(x=>document.getElementById(x).classList.add("hidden"));
+  ["auth","profileSetup","app","profilePage"]
+    .forEach(x=>document.getElementById(x).classList.add("hidden"));
   document.getElementById(id).classList.remove("hidden");
 }
 function logout(){auth.signOut();}
