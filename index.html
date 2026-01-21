@@ -45,17 +45,10 @@ header{
   cursor:pointer;
   opacity:.6;
 }
-.tab.active{
-  opacity:1;
-  background:#1e293b;
-}
+.tab.active{opacity:1;background:#1e293b}
 
 /* CHAT */
-#chats{
-  flex:1;
-  display:flex;
-  flex-direction:column;
-}
+#chats{flex:1;display:flex;flex-direction:column}
 .chat{
   flex:1;
   overflow-y:auto;
@@ -75,6 +68,13 @@ header{
   font-size:11px;
   opacity:.6;
   text-align:right;
+}
+.reply-preview{
+  font-size:12px;
+  opacity:.7;
+  border-left:2px solid #60a5fa;
+  padding-left:6px;
+  margin-bottom:4px;
 }
 
 /* INPUT */
@@ -99,6 +99,17 @@ button{
   cursor:pointer;
 }
 
+/* EMOJI */
+#emojiPanel{
+  padding:8px;
+  background:#020617;
+}
+#emojiPanel span{
+  font-size:20px;
+  margin:4px;
+  cursor:pointer;
+}
+
 /* USERS */
 .user{
   padding:10px;
@@ -117,6 +128,7 @@ button{
   align-items:center;
   justify-content:center;
 }
+.status{font-size:10px}
 
 /* POSTS */
 .post{
@@ -162,7 +174,7 @@ button{
   <button onclick="saveProfile()">Сохранить</button>
 </div>
 
-<!-- MAIN APP -->
+<!-- MAIN -->
 <div id="main" class="hidden">
 
 <header>
@@ -170,18 +182,32 @@ button{
   <button onclick="logout()" style="background:#ef4444">Выйти</button>
 </header>
 
-<!-- CHATS -->
 <div id="chats">
   <div class="chat" id="chat"></div>
+
+  <div id="replyBox" class="hidden" style="padding:6px;background:#020617">
+    Ответ: <span id="replyText"></span>
+    <button onclick="cancelReply()">✖</button>
+  </div>
+
+  <div id="emojiPanel" class="hidden">
+    <span onclick="addEmoji('😀')">😀</span>
+    <span onclick="addEmoji('😂')">😂</span>
+    <span onclick="addEmoji('❤️')">❤️</span>
+    <span onclick="addEmoji('🔥')">🔥</span>
+    <span onclick="addEmoji('👍')">👍</span>
+  </div>
+
   <div class="input">
+    <button onclick="toggleEmoji()">😀</button>
     <input id="text" placeholder="Сообщение">
     <button onclick="send()">➤</button>
   </div>
+
   <div style="padding:10px;font-weight:600">Пользователи</div>
   <div id="users"></div>
 </div>
 
-<!-- NEWS -->
 <div id="news" class="hidden" style="padding:10px;overflow:auto;flex:1">
   <textarea id="postText" placeholder="Что нового?"></textarea><br><br>
   <button onclick="createPost()">Опубликовать</button>
@@ -189,7 +215,6 @@ button{
   <div id="posts"></div>
 </div>
 
-<!-- FRIENDS -->
 <div id="friends" class="hidden" style="padding:10px;overflow:auto;flex:1">
   <div id="friendsList"></div>
 </div>
@@ -204,10 +229,11 @@ button{
 
 <!-- PROFILE VIEW -->
 <div id="profileView" class="hidden">
-  <button onclick="backToMain()">← Назад</button>
+  <button onclick="back()">← Назад</button>
   <div class="profileAvatar" id="pAvatar"></div>
   <div class="profileName" id="pName"></div>
   <div class="profileBio" id="pBio"></div>
+  <button onclick="writeFromProfile()">Написать сообщение</button>
 </div>
 
 </div>
@@ -224,6 +250,8 @@ const db=firebase.firestore();
 
 let currentChat=null;
 let unsub=null;
+let replyMsg=null;
+let profileUid=null;
 
 /* AUTH */
 async function login(){
@@ -233,6 +261,7 @@ async function login(){
 
 auth.onAuthStateChanged(async u=>{
   if(!u){show("auth");return;}
+  await db.collection("users").doc(u.uid).update({online:true});
   const d=await db.collection("users").doc(u.uid).get();
   d.exists?startApp(d.data()):show("profileSetup");
 });
@@ -242,7 +271,8 @@ async function saveProfile(){
   await db.collection("users").doc(auth.currentUser.uid).set({
     username:username.value,
     avatar:avatar.value||"👤",
-    bio:bio.value||""
+    bio:bio.value||"",
+    online:true
   });
   startApp({username:username.value,avatar:avatar.value});
 }
@@ -273,17 +303,16 @@ function loadUsers(){
         const u=d.data();
         users.innerHTML+=`
           <div class="user" onclick="openChat('${d.id}','${u.username}')">
-            <div class="avatar" onclick="event.stopPropagation();openProfile('${d.id}')">
-              ${u.avatar||"👤"}
-            </div>
+            <div class="avatar" onclick="event.stopPropagation();openProfile('${d.id}')">${u.avatar||"👤"}</div>
             ${u.username}
+            <span class="status">${u.online?"🟢":"⚪"}</span>
           </div>`;
       }
     });
   });
 }
 
-function openChat(uid,name){
+function openChat(uid){
   currentChat=cid(auth.currentUser.uid,uid);
   if(unsub)unsub();
   unsub=db.collection("chats").doc(currentChat)
@@ -296,7 +325,9 @@ function openChat(uid,name){
           hour:'2-digit',minute:'2-digit'
         });
         chat.innerHTML+=`
-          <div class="msg ${m.uid===auth.currentUser.uid?"me":""}">
+          <div class="msg ${m.uid===auth.currentUser.uid?"me":""}"
+            onclick="reply('${m.text}')">
+            ${m.replyTo?`<div class="reply-preview">↩ ${m.replyTo}</div>`:""}
             ${m.text}
             <small>${t}</small>
           </div>`;
@@ -312,13 +343,31 @@ function send(){
     .add({
       uid:auth.currentUser.uid,
       text:text.value,
+      replyTo:replyMsg,
       time:Date.now()
     });
   text.value="";
+  cancelReply();
 }
+
+/* REPLY */
+function reply(t){
+  replyMsg=t;
+  replyText.innerText=t;
+  replyBox.classList.remove("hidden");
+}
+function cancelReply(){
+  replyMsg=null;
+  replyBox.classList.add("hidden");
+}
+
+/* EMOJI */
+function toggleEmoji(){emojiPanel.classList.toggle("hidden")}
+function addEmoji(e){text.value+=e}
 
 /* PROFILE VIEW */
 async function openProfile(uid){
+  profileUid=uid;
   const d=await db.collection("users").doc(uid).get();
   const u=d.data();
   pAvatar.innerText=u.avatar||"👤";
@@ -326,7 +375,11 @@ async function openProfile(uid){
   pBio.innerText=u.bio||"";
   show("profileView");
 }
-function backToMain(){show("main")}
+function writeFromProfile(){
+  back();
+  openChat(profileUid);
+}
+function back(){show("main")}
 
 /* NEWS */
 function loadPosts(){
@@ -365,7 +418,10 @@ function show(id){
     .forEach(x=>document.getElementById(x).classList.add("hidden"));
   document.getElementById(id).classList.remove("hidden");
 }
-function logout(){auth.signOut();}
+function logout(){
+  db.collection("users").doc(auth.currentUser.uid).update({online:false});
+  auth.signOut();
+}
 </script>
 </body>
 </html>
