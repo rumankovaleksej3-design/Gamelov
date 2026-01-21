@@ -33,7 +33,7 @@ header{
   align-items:center;
 }
 
-/* CHATS PAGE */
+/* CHATS */
 #chats{
   flex:1;
   display:flex;
@@ -41,7 +41,6 @@ header{
   overflow:hidden;
 }
 
-/* CHAT AREA */
 .chat{
   flex:1;
   overflow-y:auto;
@@ -61,6 +60,22 @@ header{
   margin-left:auto;
   background:#2563eb;
 }
+.msg small{
+  display:block;
+  font-size:11px;
+  opacity:.6;
+  text-align:right;
+  margin-top:4px;
+}
+
+/* REPLY */
+.reply-preview{
+  font-size:12px;
+  opacity:.7;
+  border-left:2px solid #60a5fa;
+  padding-left:6px;
+  margin-bottom:4px;
+}
 
 /* INPUT */
 .input{
@@ -78,9 +93,21 @@ input,textarea{
 button{
   border:none;
   border-radius:8px;
-  padding:10px 14px;
+  padding:10px;
   background:#22c55e;
   font-weight:600;
+  cursor:pointer;
+}
+
+/* EMOJI */
+#emojiPanel{
+  padding:8px;
+  background:#020617;
+}
+#emojiPanel span{
+  font-size:20px;
+  cursor:pointer;
+  margin:4px;
 }
 
 /* USERS */
@@ -91,14 +118,6 @@ button{
 }
 .user:hover{background:#1e293b}
 .activeUser{background:#334155}
-
-/* POSTS */
-.post{
-  background:#020617;
-  padding:10px;
-  border-radius:10px;
-  margin-bottom:10px;
-}
 
 /* TABS */
 .tabs{
@@ -137,8 +156,8 @@ button{
 
 <!-- PROFILE -->
 <div id="profile" class="hidden">
-  <h3>Никнейм</h3>
-  <input id="username" placeholder="Введите ник"><br><br>
+  <h3>Ник</h3>
+  <input id="username"><br><br>
   <button onclick="saveProfile()">Сохранить</button>
 </div>
 
@@ -150,12 +169,26 @@ button{
   <button onclick="logout()" style="background:#ef4444">Выйти</button>
 </header>
 
-<!-- CHATS -->
 <div id="chats">
 
   <div class="chat" id="chat"></div>
 
+  <!-- reply box -->
+  <div id="replyBox" class="hidden" style="padding:6px;background:#020617">
+    Ответ: <span id="replyText"></span>
+    <button onclick="cancelReply()">✖</button>
+  </div>
+
+  <div id="emojiPanel" class="hidden">
+    <span onclick="addEmoji('😀')">😀</span>
+    <span onclick="addEmoji('😂')">😂</span>
+    <span onclick="addEmoji('❤️')">❤️</span>
+    <span onclick="addEmoji('🔥')">🔥</span>
+    <span onclick="addEmoji('👍')">👍</span>
+  </div>
+
   <div class="input">
+    <button onclick="toggleEmoji()">😀</button>
     <input id="text" placeholder="Сообщение">
     <button onclick="send()">➤</button>
   </div>
@@ -166,24 +199,8 @@ button{
 
 </div>
 
-<!-- NEWS -->
-<div id="news" class="hidden" style="padding:10px;flex:1;overflow:auto">
-  <textarea id="postText" placeholder="Что нового?"></textarea><br><br>
-  <button onclick="createPost()">Опубликовать</button>
-  <hr>
-  <div id="posts"></div>
-</div>
-
-<!-- FRIENDS -->
-<div id="friends" class="hidden" style="padding:10px;flex:1;overflow:auto">
-  <div id="friendsList"></div>
-</div>
-
-<!-- TABS -->
 <div class="tabs">
   <div class="tab active" onclick="openTab('chats',this)">💬 Чаты</div>
-  <div class="tab" onclick="openTab('news',this)">📰 Новости</div>
-  <div class="tab" onclick="openTab('friends',this)">👥 Друзья</div>
 </div>
 
 </div>
@@ -201,6 +218,7 @@ const db=firebase.firestore();
 
 let currentChat=null;
 let unsub=null;
+let replyMessage=null;
 
 /* AUTH */
 async function login(){
@@ -228,15 +246,7 @@ async function saveProfile(){
 function startApp(name){
   show("app");
   me.innerText="Вы: "+name;
-  loadUsers(); loadPosts(); loadFriends();
-}
-
-/* TABS */
-function openTab(id,el){
-  ["chats","news","friends"].forEach(x=>document.getElementById(x).classList.add("hidden"));
-  document.getElementById(id).classList.remove("hidden");
-  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-  el.classList.add("active");
+  loadUsers();
 }
 
 /* USERS */
@@ -245,7 +255,10 @@ function loadUsers(){
     users.innerHTML="";
     s.forEach(d=>{
       if(d.id!==auth.currentUser.uid)
-        users.innerHTML+=`<div class="user" onclick="openChat('${d.id}','${d.data().username}',this)">${d.data().username}</div>`;
+        users.innerHTML+=`<div class="user"
+          onclick="openChat('${d.id}','${d.data().username}',this)">
+          ${d.data().username}
+        </div>`;
     });
   });
 }
@@ -266,7 +279,16 @@ function openChat(uid,name,el){
       chat.innerHTML="";
       s.forEach(d=>{
         const m=d.data();
-        chat.innerHTML+=`<div class="msg ${m.uid===auth.currentUser.uid?"me":""}">${m.text}</div>`;
+        const t=new Date(m.time).toLocaleTimeString([],{
+          hour:'2-digit',minute:'2-digit'
+        });
+        chat.innerHTML+=`
+          <div class="msg ${m.uid===auth.currentUser.uid?"me":""}"
+            onclick='reply("${m.text}")'>
+            ${m.replyTo?`<div class="reply-preview">↩ ${m.replyTo.text}</div>`:""}
+            ${m.text}
+            <small>${t}</small>
+          </div>`;
       });
       chat.scrollTop=chat.scrollHeight;
     });
@@ -276,40 +298,33 @@ function send(){
   if(!currentChat||!text.value)return;
   db.collection("chats").doc(currentChat)
     .collection("messages")
-    .add({uid:auth.currentUser.uid,text:text.value,time:Date.now()});
+    .add({
+      uid:auth.currentUser.uid,
+      text:text.value,
+      time:Date.now(),
+      replyTo:replyMessage
+    });
   text.value="";
+  cancelReply();
 }
 
-/* POSTS */
-function loadPosts(){
-  db.collection("posts").orderBy("time","desc")
-    .onSnapshot(s=>{
-      posts.innerHTML="";
-      s.forEach(d=>{
-        const p=d.data();
-        posts.innerHTML+=`<div class="post"><b>${p.username}</b><br>${p.text}</div>`;
-      });
-    });
+/* REPLY */
+function reply(text){
+  replyMessage={text};
+  replyText.innerText=text;
+  replyBox.classList.remove("hidden");
 }
-function createPost(){
-  if(!postText.value)return;
-  db.collection("posts").add({
-    username:me.innerText.replace("Вы: ",""),
-    text:postText.value,
-    time:Date.now()
-  });
-  postText.value="";
+function cancelReply(){
+  replyMessage=null;
+  replyBox.classList.add("hidden");
 }
 
-/* FRIENDS */
-function loadFriends(){
-  db.collection("users").onSnapshot(s=>{
-    friendsList.innerHTML="";
-    s.forEach(d=>{
-      if(d.id!==auth.currentUser.uid)
-        friendsList.innerHTML+=`<div class="user">${d.data().username}</div>`;
-    });
-  });
+/* EMOJI */
+function toggleEmoji(){
+  emojiPanel.classList.toggle("hidden");
+}
+function addEmoji(e){
+  text.value+=e;
 }
 
 /* UI */
