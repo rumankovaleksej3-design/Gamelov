@@ -139,7 +139,7 @@ button{
 }
 
 /* PROFILE */
-#profileView{
+#profileView,#myProfile{
   flex:1;
   padding:20px;
   text-align:center;
@@ -178,7 +178,7 @@ button{
 <div id="main" class="hidden">
 
 <header>
-  <span id="me"></span>
+  <span id="me" onclick="openMyProfile()" style="cursor:pointer"></span>
   <button onclick="logout()" style="background:#ef4444">Выйти</button>
 </header>
 
@@ -227,13 +227,23 @@ button{
 
 </div>
 
-<!-- PROFILE VIEW -->
+<!-- PROFILE VIEW (чужой профиль) -->
 <div id="profileView" class="hidden">
   <button onclick="back()">← Назад</button>
   <div class="profileAvatar" id="pAvatar"></div>
   <div class="profileName" id="pName"></div>
   <div class="profileBio" id="pBio"></div>
   <button onclick="writeFromProfile()">Написать сообщение</button>
+</div>
+
+<!-- MY PROFILE (новый, редактируемый) -->
+<div id="myProfile" class="hidden">
+  <button onclick="back()">← Назад</button>
+  <div class="profileAvatar" id="myAvatarPreview">👤</div>
+  <input id="myAvatar" placeholder="Аватар (эмодзи)"><br><br>
+  <input id="myUsername" placeholder="Ник"><br><br>
+  <textarea id="myBio" placeholder="О себе"></textarea><br><br>
+  <button onclick="updateMyProfile()">💾 Сохранить</button>
 </div>
 
 </div>
@@ -302,7 +312,7 @@ function loadUsers(){
       if(d.id!==auth.currentUser.uid){
         const u=d.data();
         users.innerHTML+=`
-          <div class="user" onclick="openChat('${d.id}','${u.username}')">
+          <div class="user" onclick="openChat('${d.id}')">
             <div class="avatar" onclick="event.stopPropagation();openProfile('${d.id}')">${u.avatar||"👤"}</div>
             ${u.username}
             <span class="status">${u.online?"🟢":"⚪"}</span>
@@ -314,28 +324,9 @@ function loadUsers(){
 
 function openChat(uid){
   currentChat=cid(auth.currentUser.uid,uid);
-  if(unsub)unsub();
-  unsub=db.collection("chats").doc(currentChat)
-    .collection("messages").orderBy("time")
-    .onSnapshot(s=>{
-      chat.innerHTML="";
-      s.forEach(d=>{
-        const m=d.data();
-        const t=new Date(m.time).toLocaleTimeString([],{
-          hour:'2-digit',minute:'2-digit'
-        });
-        chat.innerHTML+=`
-          <div class="msg ${m.uid===auth.currentUser.uid?"me":""}"
-            onclick="reply('${m.text}')">
-            ${m.replyTo?`<div class="reply-preview">↩ ${m.replyTo}</div>`:""}
-            ${m.text}
-            <small>${t}</small>
-          </div>`;
-      });
-      chat.scrollTop=chat.scrollHeight;
-    });
 }
 
+/* SEND */
 function send(){
   if(!currentChat||!text.value)return;
   db.collection("chats").doc(currentChat)
@@ -379,7 +370,27 @@ function writeFromProfile(){
   back();
   openChat(profileUid);
 }
-function back(){show("main")}
+
+/* MY PROFILE */
+async function openMyProfile(){
+  const d=await db.collection("users").doc(auth.currentUser.uid).get();
+  const u=d.data();
+  myAvatar.value=u.avatar||"👤";
+  myUsername.value=u.username;
+  myBio.value=u.bio||"";
+  myAvatarPreview.innerText=myAvatar.value;
+  show("myProfile");
+}
+myAvatar.oninput=()=>myAvatarPreview.innerText=myAvatar.value||"👤";
+async function updateMyProfile(){
+  await db.collection("users").doc(auth.currentUser.uid).update({
+    avatar:myAvatar.value||"👤",
+    username:myUsername.value,
+    bio:myBio.value
+  });
+  me.innerText=`${myAvatar.value} ${myUsername.value}`;
+  back();
+}
 
 /* NEWS */
 function loadPosts(){
@@ -414,10 +425,11 @@ function loadFriends(){
 
 /* UI */
 function show(id){
-  ["auth","profileSetup","main","profileView"]
+  ["auth","profileSetup","main","profileView","myProfile"]
     .forEach(x=>document.getElementById(x).classList.add("hidden"));
   document.getElementById(id).classList.remove("hidden");
 }
+function back(){show("main")}
 function logout(){
   db.collection("users").doc(auth.currentUser.uid).update({online:false});
   auth.signOut();
