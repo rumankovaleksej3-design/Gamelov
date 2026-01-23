@@ -1339,17 +1339,19 @@ body {
 
 <script>
 // Инициализация Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyDioAafJRuJ4eMGK25-RsQb8M95CWlb1BY",
+  authDomain: "chatnet-2a748.firebaseapp.com",
+  projectId: "chatnet-2a748",
+  storageBucket: "chatnet-2a748.firebasestorage.app",
+  messagingSenderId: "1034617289155",
+  appId: "1:1034617289155:web:4e50f8ba388151a0b5f035"
+};
+
 try {
-  const firebaseConfig = {
-    apiKey: "AIzaSyDioAafJRuJ4eMGK25-RsQb8M95CWlb1BY",
-    authDomain: "chatnet-2a748.firebaseapp.com",
-    projectId: "chatnet-2a748",
-    storageBucket: "chatnet-2a748.firebasestorage.app",
-    messagingSenderId: "1034617289155",
-    appId: "1:1034617289155:web:4e50f8ba388151a0b5f035"
-  };
-  
-  firebase.initializeApp(firebaseConfig);
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
   console.log("Firebase инициализирован успешно");
 } catch (error) {
   console.error("Ошибка инициализации Firebase:", error);
@@ -1672,6 +1674,11 @@ async function login() {
     return;
   }
   
+  if (password.length < 6) {
+    showNotification('Пароль должен содержать минимум 6 символов', 'error');
+    return;
+  }
+  
   showNotification('Выполняется вход...', 'info');
   
   try {
@@ -1686,12 +1693,12 @@ async function login() {
     console.error("Ошибка входа:", error.code, error.message);
     
     // Если пользователь не найден, пробуем создать нового
-    if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+    if (error.code === 'auth/user-not-found') {
       try {
         showNotification('Создание нового аккаунта...', 'info');
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
         console.log("Аккаунт создан:", userCredential.user.uid);
-        showNotification('Аккаунт создан успешно!', 'success');
+        showNotification('Аккаунт создан успешно! Теперь создайте профиль.', 'success');
       } catch (createError) {
         console.error("Ошибка создания аккаунта:", createError.code, createError.message);
         showNotification('Ошибка создания аккаунта: ' + createError.message, 'error');
