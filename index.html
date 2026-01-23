@@ -173,20 +173,262 @@ button{
   margin-bottom:10px;
 }
 
-/* PROFILE */
-#profileView,#myProfile{
-  flex:1;
-  padding:20px;
-  text-align:center;
+/* УЛУЧШЕННЫЙ ПРОФИЛЬ */
+.profile-header {
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  padding: 20px;
+  text-align: center;
+  position: relative;
 }
-.profileAvatar{font-size:48px}
-.profileName{font-size:20px;font-weight:700}
-.profileBio{opacity:.8;margin-top:8px}
+
+.profile-back-btn {
+  position: absolute;
+  left: 10px;
+  top: 20px;
+  background: rgba(0,0,0,0.3);
+  border: none;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.profile-avatar {
+  font-size: 64px;
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 15px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 4px solid white;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.profile-name {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.profile-status {
+  font-size: 14px;
+  opacity: 0.9;
+  margin-bottom: 15px;
+}
+
+.profile-stats {
+  display: flex;
+  justify-content: space-around;
+  padding: 15px;
+  background: #020617;
+  border-radius: 12px;
+  margin: 15px;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #60a5fa;
+}
+
+.stat-label {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.profile-section {
+  padding: 15px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #60a5fa;
+}
+
+.profile-bio {
+  background: #020617;
+  padding: 15px;
+  border-radius: 12px;
+  line-height: 1.5;
+}
+
+.profile-actions {
+  padding: 15px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: #1e293b;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.action-btn.primary {
+  background: #3b82f6;
+}
+
+.action-btn.danger {
+  background: #ef4444;
+}
+
+.action-btn.success {
+  background: #22c55e;
+}
+
+.profile-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.info-item {
+  background: #020617;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.info-label {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-bottom: 4px;
+}
+
+.info-value {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Мой профиль - редактор */
+.avatar-selector {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.avatar-option {
+  font-size: 24px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1e293b;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.avatar-option.selected {
+  border-color: #3b82f6;
+  background: #1e40af;
+}
+
+.status-selector {
+  display: flex;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.status-option {
+  flex: 1;
+  padding: 8px;
+  text-align: center;
+  background: #1e293b;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.status-option.selected {
+  border-color: #3b82f6;
+}
+
+/* Theme selector */
+.theme-options {
+  display: flex;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.theme-option {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.theme-option.selected {
+  border-color: white;
+}
+
+/* Online indicator */
+.online-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-left: 5px;
+}
+
+.online-indicator.online {
+  background: #22c55e;
+  box-shadow: 0 0 5px #22c55e;
+}
+
+.online-indicator.offline {
+  background: #6b7280;
+}
 
 /* СТАТУС СООБЩЕНИЙ */
 .msg-status {
   font-size: 10px;
   margin-left: 4px;
+}
+
+/* Quick actions */
+.quick-actions {
+  display: flex;
+  gap: 10px;
+  padding: 15px;
+  background: #020617;
+  border-top: 1px solid #334155;
+}
+
+.quick-action-btn {
+  flex: 1;
+  text-align: center;
+  padding: 10px;
+  background: #1e293b;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.quick-action-btn:hover {
+  background: #334155;
 }
 </style>
 
@@ -208,16 +450,39 @@ button{
 
 <!-- PROFILE SETUP -->
 <div id="profileSetup" class="hidden">
-  <h3>Профиль</h3>
-  <input id="username" placeholder="Ник"><br><br>
-  <input id="avatar" placeholder="Аватар (эмодзи)"><br><br>
-  <textarea id="bio" placeholder="О себе"></textarea><br><br>
-  <button onclick="saveProfile()">Сохранить</button>
+  <div class="profile-header">
+    <div class="profile-avatar" id="setupAvatarPreview">👤</div>
+    <div class="profile-name">Создание профиля</div>
+  </div>
+  
+  <div class="profile-section">
+    <div class="section-title">Выберите аватар</div>
+    <div class="avatar-selector" id="avatarSelectorSetup">
+      <div class="avatar-option selected" onclick="selectAvatar('👤', 'setup')">👤</div>
+      <div class="avatar-option" onclick="selectAvatar('😎', 'setup')">😎</div>
+      <div class="avatar-option" onclick="selectAvatar('🤖', 'setup')">🤖</div>
+      <div class="avatar-option" onclick="selectAvatar('🐶', 'setup')">🐶</div>
+      <div class="avatar-option" onclick="selectAvatar('🦊', 'setup')">🦊</div>
+      <div class="avatar-option" onclick="selectAvatar('👑', 'setup')">👑</div>
+    </div>
+    
+    <input id="username" placeholder="Ваш никнейм" style="width:100%;margin:10px 0"><br>
+    
+    <div class="section-title">Статус</div>
+    <div class="status-selector" id="statusSelectorSetup">
+      <div class="status-option selected" onclick="selectStatus('online', 'setup')">🟢 В сети</div>
+      <div class="status-option" onclick="selectStatus('busy', 'setup')">🟡 Занят</div>
+      <div class="status-option" onclick="selectStatus('invisible', 'setup')">⚪ Невидимка</div>
+    </div>
+    
+    <textarea id="bio" placeholder="Расскажите о себе..." style="width:100%;height:80px;margin:10px 0"></textarea><br>
+    
+    <button onclick="saveProfile()" style="width:100%;padding:12px;background:#3b82f6">Создать профиль</button>
+  </div>
 </div>
 
 <!-- MAIN -->
 <div id="main" class="hidden">
-
 <header>
   <span id="me" onclick="openMyProfile()" style="cursor:pointer"></span>
   <button onclick="logout()" style="background:#ef4444">Выйти</button>
@@ -265,23 +530,132 @@ button{
 
 </div>
 
-<!-- PROFILE VIEW -->
+<!-- ПРОСМОТР ПРОФИЛЯ ДРУГОГО ПОЛЬЗОВАТЕЛЯ -->
 <div id="profileView" class="hidden">
-  <button onclick="back()">← Назад</button>
-  <div class="profileAvatar" id="pAvatar"></div>
-  <div class="profileName" id="pName"></div>
-  <div class="profileBio" id="pBio"></div>
-  <button onclick="writeFromProfile()">Написать сообщение</button>
+  <div class="profile-header">
+    <button class="profile-back-btn" onclick="back()">← Назад</button>
+    <div class="profile-avatar" id="pAvatar"></div>
+    <div class="profile-name" id="pName"></div>
+    <div class="profile-status" id="pStatus"></div>
+  </div>
+  
+  <div class="profile-stats">
+    <div class="stat-item">
+      <div class="stat-value" id="pMessages">0</div>
+      <div class="stat-label">Сообщений</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value" id="pFriends">0</div>
+      <div class="stat-label">Друзей</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value" id="pPosts">0</div>
+      <div class="stat-label">Постов</div>
+    </div>
+  </div>
+  
+  <div class="profile-section">
+    <div class="section-title">О себе</div>
+    <div class="profile-bio" id="pBio">Пользователь еще не добавил информацию о себе</div>
+  </div>
+  
+  <div class="profile-section">
+    <div class="section-title">Информация</div>
+    <div class="profile-info-grid">
+      <div class="info-item">
+        <div class="info-label">Регистрация</div>
+        <div class="info-value" id="pJoined">-</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Последний раз в сети</div>
+        <div class="info-value" id="pLastSeen">-</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Статус</div>
+        <div class="info-value" id="pOnlineStatus">-</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">ID</div>
+        <div class="info-value" style="font-size:10px" id="pId">-</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="profile-actions">
+    <button class="action-btn primary" onclick="writeFromProfile()">
+      ✉️ Написать
+    </button>
+    <button class="action-btn" onclick="toggleFriend()" id="friendBtn">
+      🤝 Добавить в друзья
+    </button>
+    <button class="action-btn danger" onclick="blockUser()" id="blockBtn">
+      🚫 Заблокировать
+    </button>
+  </div>
 </div>
 
-<!-- MY PROFILE -->
+<!-- МОЙ ПРОФИЛЬ (РЕДАКТИРОВАНИЕ) -->
 <div id="myProfile" class="hidden">
-  <button onclick="back()">← Назад</button>
-  <div class="profileAvatar" id="myAvatarPreview">👤</div>
-  <input id="myAvatar" placeholder="Аватар (эмодзи)"><br><br>
-  <input id="myUsername" placeholder="Ник"><br><br>
-  <textarea id="myBio" placeholder="О себе"></textarea><br><br>
-  <button onclick="updateMyProfile()">💾 Сохранить</button>
+  <div class="profile-header">
+    <button class="profile-back-btn" onclick="back()">← Назад</button>
+    <div class="profile-avatar" id="myAvatarPreview">👤</div>
+    <div class="profile-name">Мой профиль</div>
+    <div class="profile-status" id="myStatusPreview">🟢 В сети</div>
+  </div>
+  
+  <div class="profile-section">
+    <div class="section-title">Основная информация</div>
+    <input id="myUsername" placeholder="Никнейм" style="width:100%;margin:5px 0">
+    
+    <div class="section-title">Аватар</div>
+    <div class="avatar-selector" id="avatarSelector">
+      <div class="avatar-option selected" onclick="selectAvatar('👤', 'my')">👤</div>
+      <div class="avatar-option" onclick="selectAvatar('😎', 'my')">😎</div>
+      <div class="avatar-option" onclick="selectAvatar('🤖', 'my')">🤖</div>
+      <div class="avatar-option" onclick="selectAvatar('🐶', 'my')">🐶</div>
+      <div class="avatar-option" onclick="selectAvatar('🦊', 'my')">🦊</div>
+      <div class="avatar-option" onclick="selectAvatar('👑', 'my')">👑</div>
+    </div>
+    <input id="myAvatarCustom" placeholder="Или введите свой эмодзи" style="width:100%;margin:10px 0">
+    
+    <div class="section-title">Статус</div>
+    <div class="status-selector" id="statusSelector">
+      <div class="status-option selected" onclick="selectStatus('online', 'my')">🟢 В сети</div>
+      <div class="status-option" onclick="selectStatus('busy', 'my')">🟡 Занят</div>
+      <div class="status-option" onclick="selectStatus('away', 'my')">🟠 Отошел</div>
+      <div class="status-option" onclick="selectStatus('invisible', 'my')">⚪ Невидимка</div>
+    </div>
+    
+    <div class="section-title">О себе</div>
+    <textarea id="myBio" placeholder="Расскажите о себе..." style="width:100%;height:100px"></textarea>
+    
+    <div class="section-title">Настройки</div>
+    <div style="display:flex;align-items:center;gap:10px;margin:10px 0">
+      <input type="checkbox" id="showOnline" checked style="width:20px;height:20px">
+      <label for="showOnline">Показывать онлайн-статус</label>
+    </div>
+    
+    <div style="display:flex;align-items:center;gap:10px;margin:10px 0">
+      <input type="checkbox" id="allowMessages" checked style="width:20px;height:20px">
+      <label for="allowMessages">Разрешить сообщения от всех</label>
+    </div>
+    
+    <button class="action-btn success" onclick="updateMyProfile()" style="width:100%;margin-top:20px">
+      💾 Сохранить изменения
+    </button>
+  </div>
+  
+  <div class="quick-actions">
+    <div class="quick-action-btn" onclick="showMyStats()">
+      📊 Статистика
+    </div>
+    <div class="quick-action-btn" onclick="exportMyData()">
+      📁 Экспорт данных
+    </div>
+    <div class="quick-action-btn" onclick="deleteAccount()">
+      🗑️ Удалить аккаунт
+    </div>
+  </div>
 </div>
 
 </div>
@@ -300,6 +674,9 @@ let currentChat=null;
 let unsub=null;
 let replyMsg=null;
 let profileUid=null;
+let selectedAvatar = '👤';
+let selectedStatus = 'online';
+let selectedAvatarType = 'my';
 
 // Эмодзи по категориям
 const emojiCategories = {
@@ -317,7 +694,6 @@ function initEmojiPanel() {
   const categoriesContainer = document.getElementById('emojiCategories');
   const emojiGrid = document.getElementById('emojiGrid');
   
-  // Создаем кнопки категорий
   Object.keys(emojiCategories).forEach((cat, index) => {
     const btn = document.createElement('button');
     btn.className = `emoji-category-btn ${index === 0 ? 'active' : ''}`;
@@ -326,7 +702,6 @@ function initEmojiPanel() {
     categoriesContainer.appendChild(btn);
   });
   
-  // Загружаем первую категорию
   setEmojiCategory('faces');
 }
 
@@ -334,11 +709,9 @@ function setEmojiCategory(category) {
   const emojiGrid = document.getElementById('emojiGrid');
   const buttons = document.querySelectorAll('.emoji-category-btn');
   
-  // Обновляем активную кнопку
   buttons.forEach(btn => btn.classList.remove('active'));
   event.target.classList.add('active');
   
-  // Заполняем сетку эмодзи
   emojiGrid.innerHTML = '';
   emojiCategories[category].forEach(emoji => {
     const span = document.createElement('span');
@@ -346,6 +719,58 @@ function setEmojiCategory(category) {
     span.onclick = () => addEmoji(emoji);
     emojiGrid.appendChild(span);
   });
+}
+
+// Выбор аватара
+function selectAvatar(avatar, type) {
+  selectedAvatar = avatar;
+  selectedAvatarType = type;
+  
+  const selector = type === 'setup' ? '#avatarSelectorSetup' : '#avatarSelector';
+  document.querySelectorAll(`${selector} .avatar-option`).forEach(option => {
+    option.classList.remove('selected');
+  });
+  event.target.classList.add('selected');
+  
+  if (type === 'setup') {
+    document.getElementById('setupAvatarPreview').textContent = avatar;
+  } else {
+    document.getElementById('myAvatarPreview').textContent = avatar;
+    document.getElementById('myAvatarCustom').value = avatar;
+  }
+}
+
+// Выбор статуса
+function selectStatus(status, type) {
+  selectedStatus = status;
+  
+  const selector = type === 'setup' ? '#statusSelectorSetup' : '#statusSelector';
+  document.querySelectorAll(`${selector} .status-option`).forEach(option => {
+    option.classList.remove('selected');
+  });
+  event.target.classList.add('selected');
+  
+  if (type === 'my') {
+    const statusText = {
+      'online': '🟢 В сети',
+      'busy': '🟡 Занят',
+      'away': '🟠 Отошел',
+      'invisible': '⚪ Невидимка'
+    };
+    document.getElementById('myStatusPreview').textContent = statusText[status];
+  }
+}
+
+// Получение текста статуса
+function getStatusText(status) {
+  const statuses = {
+    'online': 'В сети',
+    'busy': 'Занят',
+    'away': 'Отошел',
+    'invisible': 'Не в сети',
+    'offline': 'Не в сети'
+  };
+  return statuses[status] || 'Не в сети';
 }
 
 /* AUTH */
@@ -358,7 +783,8 @@ auth.onAuthStateChanged(async u=>{
   if(!u){show("auth");return;}
   await db.collection("users").doc(u.uid).update({
     online:true,
-    lastSeen: Date.now()
+    lastSeen: Date.now(),
+    status: 'online'
   });
   const d=await db.collection("users").doc(u.uid).get();
   d.exists?startApp(d.data()):show("profileSetup");
@@ -367,13 +793,24 @@ auth.onAuthStateChanged(async u=>{
 /* PROFILE SETUP */
 async function saveProfile(){
   await db.collection("users").doc(auth.currentUser.uid).set({
-    username:username.value,
-    avatar:avatar.value||"👤",
-    bio:bio.value||"",
-    online:true,
-    lastSeen: Date.now()
+    username: username.value || `User${Math.floor(Math.random()*10000)}`,
+    avatar: selectedAvatar || "👤",
+    bio: bio.value || "",
+    online: true,
+    lastSeen: Date.now(),
+    status: selectedStatus,
+    createdAt: Date.now(),
+    showOnline: true,
+    allowMessages: true,
+    friends: [],
+    blocked: [],
+    stats: {
+      messages: 0,
+      posts: 0,
+      friends: 0
+    }
   });
-  startApp({username:username.value,avatar:avatar.value});
+  startApp({username: username.value, avatar: selectedAvatar});
 }
 
 /* START */
@@ -382,8 +819,6 @@ function startApp(u){
   me.innerText=`${u.avatar||"👤"} ${u.username}`;
   loadUsers(); loadPosts(); loadFriends();
   initEmojiPanel();
-  
-  // Запускаем обновление времени последнего посещения
   startLastSeenUpdater();
 }
 
@@ -398,7 +833,6 @@ function openTab(id,el){
 /* USERS */
 const cid=(a,b)=>[a,b].sort().join("_");
 
-// Форматирование времени последнего посещения
 function formatLastSeen(timestamp) {
   if (!timestamp) return "давно";
   const now = Date.now();
@@ -419,9 +853,15 @@ function loadUsers(){
     s.forEach(d=>{
       if(d.id!==auth.currentUser.uid){
         const u=d.data();
-        const statusText = u.online ? 
-          "🟢 онлайн" : 
-          `⚪ был(а) ${formatLastSeen(u.lastSeen)}`;
+        let statusText = '';
+        
+        if (u.status === 'invisible') {
+          statusText = '⚪ Не в сети';
+        } else if (u.online && u.showOnline !== false) {
+          statusText = `🟢 ${getStatusText(u.status || 'online')}`;
+        } else {
+          statusText = `⚪ был(а) ${formatLastSeen(u.lastSeen)}`;
+        }
         
         users.innerHTML+=`
         <div class="user" onclick="openChat('${d.id}')">
@@ -436,54 +876,269 @@ function loadUsers(){
   });
 }
 
-/* CHAT */
-function openChat(uid){
-  currentChat = cid(auth.currentUser.uid, uid);
-
-  if(unsub) unsub();
-
-  unsub = db.collection("chats")
-    .doc(currentChat)
-    .collection("messages")
-    .orderBy("time")
-    .onSnapshot(s=>{
-      chat.innerHTML="";
-      s.forEach(d=>{
-        const m=d.data();
-        const timeStr=new Date(m.time).toLocaleTimeString([],{
-          hour:'2-digit',minute:'2-digit'
-        });
-        
-        // Определяем статус сообщения
-        let statusIcon = '';
-        if (m.uid === auth.currentUser.uid) {
-          if (m.status === 'sending') statusIcon = '🔄';
-          else if (m.status === 'delivered') statusIcon = '✓';
-          else if (m.status === 'read') statusIcon = '👁️✓';
-          else if (m.status === 'error') statusIcon = '❌';
-          else statusIcon = '✓'; // по умолчанию
-        }
-        
-        chat.innerHTML+=`
-          <div class="msg ${m.uid===auth.currentUser.uid?"me":""}"
-            onclick="reply('${m.text}')">
-            ${m.replyTo?`<div class="reply-preview">↩ ${m.replyTo}</div>`:""}
-            ${m.text}
-            <small>${timeStr} ${statusIcon}</small>
-          </div>`;
-      });
-      chat.scrollTop=chat.scrollHeight;
-      
-      // Помечаем сообщения как прочитанные
-      markMessagesAsRead(uid);
-    });
+/* ПРОСМОТР ПРОФИЛЯ */
+async function openProfile(uid){
+  profileUid = uid;
+  const d = await db.collection("users").doc(uid).get();
+  const u = d.data();
+  
+  // Основная информация
+  document.getElementById('pAvatar').textContent = u.avatar || "👤";
+  document.getElementById('pName').textContent = u.username;
+  document.getElementById('pBio').textContent = u.bio || "Пользователь еще не добавил информацию о себе";
+  document.getElementById('pId').textContent = uid.substring(0, 8) + '...';
+  
+  // Статус
+  if (u.status === 'invisible') {
+    document.getElementById('pStatus').textContent = '⚪ Не в сети';
+    document.getElementById('pOnlineStatus').textContent = 'Не в сети';
+  } else if (u.online && u.showOnline !== false) {
+    document.getElementById('pStatus').textContent = `🟢 ${getStatusText(u.status || 'online')}`;
+    document.getElementById('pOnlineStatus').textContent = getStatusText(u.status || 'online');
+  } else {
+    document.getElementById('pStatus').textContent = `⚪ был(а) ${formatLastSeen(u.lastSeen)}`;
+    document.getElementById('pOnlineStatus').textContent = 'Не в сети';
+  }
+  
+  // Время регистрации
+  if (u.createdAt) {
+    const joinDate = new Date(u.createdAt);
+    document.getElementById('pJoined').textContent = joinDate.toLocaleDateString('ru-RU');
+  }
+  
+  // Последний раз в сети
+  document.getElementById('pLastSeen').textContent = formatLastSeen(u.lastSeen);
+  
+  // Статистика
+  document.getElementById('pMessages').textContent = u.stats?.messages || 0;
+  document.getElementById('pFriends').textContent = u.stats?.friends || 0;
+  document.getElementById('pPosts').textContent = u.stats?.posts || 0;
+  
+  // Проверяем, есть ли уже в друзьях
+  const myData = await db.collection("users").doc(auth.currentUser.uid).get();
+  const myFriends = myData.data()?.friends || [];
+  const friendBtn = document.getElementById('friendBtn');
+  
+  if (myFriends.includes(uid)) {
+    friendBtn.innerHTML = '🤝 Удалить из друзей';
+    friendBtn.classList.add('danger');
+  } else {
+    friendBtn.innerHTML = '🤝 Добавить в друзей';
+    friendBtn.classList.remove('danger');
+  }
+  
+  // Проверяем, заблокирован ли пользователь
+  const myBlocked = myData.data()?.blocked || [];
+  const blockBtn = document.getElementById('blockBtn');
+  
+  if (myBlocked.includes(uid)) {
+    blockBtn.innerHTML = '✅ Разблокировать';
+    blockBtn.classList.add('success');
+  } else {
+    blockBtn.innerHTML = '🚫 Заблокировать';
+    blockBtn.classList.remove('success');
+  }
+  
+  show("profileView");
 }
 
-/* SEND */
+// Добавить/удалить из друзей
+async function toggleFriend() {
+  if (!profileUid) return;
+  
+  const myRef = db.collection("users").doc(auth.currentUser.uid);
+  const myData = await myRef.get();
+  const myFriends = myData.data()?.friends || [];
+  
+  if (myFriends.includes(profileUid)) {
+    // Удаляем из друзей
+    await myRef.update({
+      friends: firebase.firestore.FieldValue.arrayRemove(profileUid),
+      'stats.friends': firebase.firestore.FieldValue.increment(-1)
+    });
+    document.getElementById('friendBtn').innerHTML = '🤝 Добавить в друзей';
+    document.getElementById('friendBtn').classList.remove('danger');
+  } else {
+    // Добавляем в друзей
+    await myRef.update({
+      friends: firebase.firestore.FieldValue.arrayUnion(profileUid),
+      'stats.friends': firebase.firestore.FieldValue.increment(1)
+    });
+    document.getElementById('friendBtn').innerHTML = '🤝 Удалить из друзей';
+    document.getElementById('friendBtn').classList.add('danger');
+  }
+}
+
+// Блокировка/разблокировка пользователя
+async function blockUser() {
+  if (!profileUid) return;
+  
+  const myRef = db.collection("users").doc(auth.currentUser.uid);
+  const myData = await myRef.get();
+  const myBlocked = myData.data()?.blocked || [];
+  
+  if (myBlocked.includes(profileUid)) {
+    // Разблокировать
+    await myRef.update({
+      blocked: firebase.firestore.FieldValue.arrayRemove(profileUid)
+    });
+    document.getElementById('blockBtn').innerHTML = '🚫 Заблокировать';
+    document.getElementById('blockBtn').classList.remove('success');
+  } else {
+    // Заблокировать
+    await myRef.update({
+      blocked: firebase.firestore.FieldValue.arrayUnion(profileUid),
+      friends: firebase.firestore.FieldValue.arrayRemove(profileUid)
+    });
+    document.getElementById('blockBtn').innerHTML = '✅ Разблокировать';
+    document.getElementById('blockBtn').classList.add('success');
+    document.getElementById('friendBtn').innerHTML = '🤝 Добавить в друзей';
+    document.getElementById('friendBtn').classList.remove('danger');
+  }
+}
+
+function writeFromProfile(){
+  back();
+  openChat(profileUid);
+}
+
+/* МОЙ ПРОФИЛЬ */
+async function openMyProfile(){
+  const d = await db.collection("users").doc(auth.currentUser.uid).get();
+  const u = d.data();
+  
+  document.getElementById('myUsername').value = u.username;
+  document.getElementById('myBio').value = u.bio || "";
+  document.getElementById('myAvatarCustom').value = u.avatar || "👤";
+  document.getElementById('myAvatarPreview').textContent = u.avatar || "👤";
+  document.getElementById('showOnline').checked = u.showOnline !== false;
+  document.getElementById('allowMessages').checked = u.allowMessages !== false;
+  
+  // Устанавливаем статус
+  selectedStatus = u.status || 'online';
+  const statusText = {
+    'online': '🟢 В сети',
+    'busy': '🟡 Занят',
+    'away': '🟠 Отошел',
+    'invisible': '⚪ Невидимка'
+  };
+  document.getElementById('myStatusPreview').textContent = statusText[selectedStatus];
+  
+  // Обновляем выбранные элементы
+  document.querySelectorAll('#statusSelector .status-option').forEach(option => {
+    option.classList.remove('selected');
+    if (option.textContent.includes(statusText[selectedStatus].substring(2))) {
+      option.classList.add('selected');
+    }
+  });
+  
+  // Выбираем аватар
+  document.querySelectorAll('#avatarSelector .avatar-option').forEach(option => {
+    option.classList.remove('selected');
+    if (option.textContent === u.avatar) {
+      option.classList.add('selected');
+    }
+  });
+  
+  show("myProfile");
+}
+
+// Кастомный аватар
+document.getElementById('myAvatarCustom').oninput = function() {
+  document.getElementById('myAvatarPreview').textContent = this.value || "👤";
+};
+
+async function updateMyProfile(){
+  const updateData = {
+    avatar: document.getElementById('myAvatarCustom').value || selectedAvatar,
+    username: document.getElementById('myUsername').value,
+    bio: document.getElementById('myBio').value,
+    status: selectedStatus,
+    showOnline: document.getElementById('showOnline').checked,
+    allowMessages: document.getElementById('allowMessages').checked
+  };
+  
+  await db.collection("users").doc(auth.currentUser.uid).update(updateData);
+  
+  me.innerText = `${updateData.avatar} ${updateData.username}`;
+  back();
+}
+
+// Показать статистику
+async function showMyStats() {
+  const d = await db.collection("users").doc(auth.currentUser.uid).get();
+  const u = d.data();
+  
+  alert(`📊 Ваша статистика:\n\n` +
+        `Сообщений: ${u.stats?.messages || 0}\n` +
+        `Постов: ${u.stats?.posts || 0}\n` +
+        `Друзей: ${u.stats?.friends || 0}\n` +
+        `Дата регистрации: ${u.createdAt ? new Date(u.createdAt).toLocaleDateString('ru-RU') : 'Неизвестно'}`);
+}
+
+// Экспорт данных
+async function exportMyData() {
+  const d = await db.collection("users").doc(auth.currentUser.uid).get();
+  const data = d.data();
+  
+  // Создаем JSON файл
+  const dataStr = JSON.stringify(data, null, 2);
+  const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+  
+  const exportFileDefaultName = `chatnet_data_${new Date().getTime()}.json`;
+  
+  const linkElement = document.createElement('a');
+  linkElement.setAttribute('href', dataUri);
+  linkElement.setAttribute('download', exportFileDefaultName);
+  linkElement.click();
+}
+
+// Удаление аккаунта
+async function deleteAccount() {
+  if (confirm("⚠️ ВНИМАНИЕ!\n\nУдаление аккаунта безвозвратно удалит все ваши данные: профиль, сообщения, посты.\n\nВы уверены?")) {
+    if (confirm("Это действие нельзя отменить! Напишите 'УДАЛИТЬ' для подтверждения:")) {
+      // Здесь должна быть логика удаления аккаунта
+      alert("Функция удаления аккаунта в разработке");
+      // В реальном приложении нужно:
+      // 1. Удалить все сообщения пользователя
+      // 2. Удалить все посты
+      // 3. Удалить профиль
+      // 4. Удалить аккаунт аутентификации
+    }
+  }
+}
+
+/* CHAT, SEND, REPLY, EMOJI - оставляем как было */
+function openChat(uid){
+  currentChat = cid(auth.currentUser.uid, uid);
+  if(unsub) unsub();
+  unsub = db.collection("chats").doc(currentChat).collection("messages").orderBy("time").onSnapshot(s=>{
+    chat.innerHTML="";
+    s.forEach(d=>{
+      const m=d.data();
+      const timeStr=new Date(m.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      let statusIcon = '';
+      if (m.uid === auth.currentUser.uid) {
+        if (m.status === 'sending') statusIcon = '🔄';
+        else if (m.status === 'delivered') statusIcon = '✓';
+        else if (m.status === 'read') statusIcon = '👁️✓';
+        else if (m.status === 'error') statusIcon = '❌';
+        else statusIcon = '✓';
+      }
+      chat.innerHTML+=`
+        <div class="msg ${m.uid===auth.currentUser.uid?"me":""}" onclick="reply('${m.text}')">
+          ${m.replyTo?`<div class="reply-preview">↩ ${m.replyTo}</div>`:""}
+          ${m.text}
+          <small>${timeStr} ${statusIcon}</small>
+        </div>`;
+    });
+    chat.scrollTop=chat.scrollHeight;
+    markMessagesAsRead(uid);
+  });
+}
+
 async function send(){
   if(!currentChat||!text.value) return;
-  
-  // Создаем уникальный ID для сообщения
   const messageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   const messageData = {
     uid: auth.currentUser.uid,
@@ -493,115 +1148,41 @@ async function send(){
     status: 'sending',
     messageId: messageId
   };
-  
   try {
-    // Отправляем сообщение
-    await db.collection("chats").doc(currentChat)
-      .collection("messages").doc(messageId)
-      .set(messageData);
-    
-    // Обновляем статус на "доставлено"
-    await db.collection("chats").doc(currentChat)
-      .collection("messages").doc(messageId)
-      .update({ status: 'delivered' });
-    
+    await db.collection("chats").doc(currentChat).collection("messages").doc(messageId).set(messageData);
+    await db.collection("chats").doc(currentChat).collection("messages").doc(messageId).update({ status: 'delivered' });
     text.value = "";
     cancelReply();
-    
+    // Обновляем статистику сообщений
+    await db.collection("users").doc(auth.currentUser.uid).update({
+      'stats.messages': firebase.firestore.FieldValue.increment(1)
+    });
   } catch (error) {
     console.error("Ошибка отправки:", error);
-    // Если ошибка, обновляем статус
     try {
-      await db.collection("chats").doc(currentChat)
-        .collection("messages").doc(messageId)
-        .update({ status: 'error' });
+      await db.collection("chats").doc(currentChat).collection("messages").doc(messageId).update({ status: 'error' });
     } catch (e) {}
   }
 }
 
-// Пометить сообщения как прочитанные
 async function markMessagesAsRead(uid) {
   const chatId = cid(auth.currentUser.uid, uid);
-  
   try {
-    // Находим все непрочитанные сообщения от собеседника
-    const snapshot = await db.collection("chats").doc(chatId)
-      .collection("messages")
-      .where("uid", "==", uid)
-      .where("status", "in", ["sending", "delivered"])
-      .get();
-    
-    // Обновляем статус на "read"
+    const snapshot = await db.collection("chats").doc(chatId).collection("messages")
+      .where("uid", "==", uid).where("status", "in", ["sending", "delivered"]).get();
     const batch = db.batch();
     snapshot.forEach(doc => {
-      const ref = db.collection("chats").doc(chatId)
-        .collection("messages").doc(doc.id);
+      const ref = db.collection("chats").doc(chatId).collection("messages").doc(doc.id);
       batch.update(ref, { status: 'read' });
     });
-    
-    if (snapshot.size > 0) {
-      await batch.commit();
-    }
-  } catch (error) {
-    console.error("Ошибка при отметке как прочитано:", error);
-  }
+    if (snapshot.size > 0) await batch.commit();
+  } catch (error) {}
 }
 
-/* REPLY */
-function reply(t){
-  replyMsg=t;
-  replyText.innerText=t;
-  replyBox.classList.remove("hidden");
-}
-function cancelReply(){
-  replyMsg=null;
-  replyBox.classList.add("hidden");
-}
-
-/* EMOJI */
-function toggleEmoji(){
-  emojiPanel.classList.toggle("hidden");
-}
-function addEmoji(e){
-  text.value+=e;
-  text.focus();
-}
-
-/* PROFILE VIEW */
-async function openProfile(uid){
-  profileUid=uid;
-  const d=await db.collection("users").doc(uid).get();
-  const u=d.data();
-  pAvatar.innerText=u.avatar||"👤";
-  pName.innerText=u.username;
-  pBio.innerText=u.bio||"";
-  show("profileView");
-}
-function writeFromProfile(){
-  back();
-  openChat(profileUid);
-}
-
-/* MY PROFILE */
-async function openMyProfile(){
-  const d=await db.collection("users").doc(auth.currentUser.uid).get();
-  const u=d.data();
-  myAvatar.value=u.avatar||"👤";
-  myUsername.value=u.username;
-  myBio.value=u.bio||"";
-  myAvatarPreview.innerText=myAvatar.value;
-  show("myProfile");
-}
-myAvatar.oninput=()=>myAvatarPreview.innerText=myAvatar.value||"👤";
-async function updateMyProfile(){
-  await db.collection("users").doc(auth.currentUser.uid).update({
-    avatar:myAvatar.value||"👤",
-    username:myUsername.value,
-    bio:myBio.value
-  });
-  me.innerText=`${myAvatar.value} ${myUsername.value}`;
-  back();
-}
+function reply(t){ replyMsg=t; replyText.innerText=t; replyBox.classList.remove("hidden"); }
+function cancelReply(){ replyMsg=null; replyBox.classList.add("hidden"); }
+function toggleEmoji(){ emojiPanel.classList.toggle("hidden"); }
+function addEmoji(e){ text.value+=e; text.focus(); }
 
 /* NEWS */
 function loadPosts(){
@@ -613,14 +1194,19 @@ function loadPosts(){
     });
   });
 }
-function createPost(){
-  if(!postText.value)return;
-  db.collection("posts").add({
-    username:me.innerText,
-    text:postText.value,
-    time:Date.now()
+async function createPost(){
+  if(!postText.value) return;
+  await db.collection("posts").add({
+    username: me.innerText,
+    text: postText.value,
+    time: Date.now(),
+    uid: auth.currentUser.uid
   });
   postText.value="";
+  // Обновляем статистику постов
+  await db.collection("users").doc(auth.currentUser.uid).update({
+    'stats.posts': firebase.firestore.FieldValue.increment(1)
+  });
 }
 
 /* FRIENDS */
@@ -630,10 +1216,14 @@ function loadFriends(){
     s.forEach(d=>{
       if(d.id!==auth.currentUser.uid){
         const u=d.data();
-        const statusText = u.online ? 
-          "🟢 онлайн" : 
-          `⚪ был(а) ${formatLastSeen(u.lastSeen)}`;
-        
+        let statusText = '';
+        if (u.status === 'invisible') {
+          statusText = '⚪ Не в сети';
+        } else if (u.online && u.showOnline !== false) {
+          statusText = `🟢 ${getStatusText(u.status || 'online')}`;
+        } else {
+          statusText = `⚪ был(а) ${formatLastSeen(u.lastSeen)}`;
+        }
         friendsList.innerHTML+=`
         <div class="user" onclick="openProfile('${d.id}')">
           <div class="avatar">${u.avatar||"👤"}</div>
@@ -649,24 +1239,19 @@ function loadFriends(){
 
 /* UI */
 function show(id){
-  ["auth","profileSetup","main","profileView","myProfile"]
-    .forEach(x=>document.getElementById(x).classList.add("hidden"));
+  ["auth","profileSetup","main","profileView","myProfile"].forEach(x=>document.getElementById(x).classList.add("hidden"));
   document.getElementById(id).classList.remove("hidden");
 }
-function back(){show("main")}
+function back(){ show("main") }
 
-// Обновление времени последнего посещения
 function startLastSeenUpdater() {
-  // Обновляем каждые 30 секунд
   setInterval(async () => {
     if (auth.currentUser) {
       try {
         await db.collection("users").doc(auth.currentUser.uid).update({
           lastSeen: Date.now()
         });
-      } catch (error) {
-        console.error("Ошибка обновления lastSeen:", error);
-      }
+      } catch (error) {}
     }
   }, 30000);
 }
@@ -675,7 +1260,8 @@ async function logout(){
   if (auth.currentUser) {
     await db.collection("users").doc(auth.currentUser.uid).update({
       online: false,
-      lastSeen: Date.now()
+      lastSeen: Date.now(),
+      status: 'offline'
     });
   }
   auth.signOut();
