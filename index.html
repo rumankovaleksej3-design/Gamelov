@@ -99,15 +99,50 @@ button{
   cursor:pointer;
 }
 
-/* EMOJI */
-#emojiPanel{
-  padding:8px;
-  background:#020617;
+/* НОВЫЕ СТИЛИ: ЭМОДЗИ ПАНЕЛЬ */
+.emoji-category {
+  display: flex;
+  overflow-x: auto;
+  gap: 5px;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #334155;
 }
-#emojiPanel span{
-  font-size:20px;
-  margin:4px;
-  cursor:pointer;
+
+.emoji-category-btn {
+  background: #1e293b;
+  border: none;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.emoji-category-btn.active {
+  background: #3b82f6;
+}
+
+.emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 5px;
+  max-height: 150px;
+  overflow-y: auto;
+  padding: 5px 0;
+}
+
+.emoji-grid span {
+  font-size: 20px;
+  text-align: center;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+}
+
+.emoji-grid span:hover {
+  background: #1e293b;
 }
 
 /* USERS */
@@ -128,7 +163,7 @@ button{
   align-items:center;
   justify-content:center;
 }
-.status{font-size:10px}
+.status{font-size:10px; opacity:0.8; margin-top:2px;}
 
 /* POSTS */
 .post{
@@ -147,6 +182,12 @@ button{
 .profileAvatar{font-size:48px}
 .profileName{font-size:20px;font-weight:700}
 .profileBio{opacity:.8;margin-top:8px}
+
+/* СТАТУС СООБЩЕНИЙ */
+.msg-status {
+  font-size: 10px;
+  margin-left: 4px;
+}
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -191,11 +232,8 @@ button{
   </div>
 
   <div id="emojiPanel" class="hidden">
-    <span onclick="addEmoji('😀')">😀</span>
-    <span onclick="addEmoji('😂')">😂</span>
-    <span onclick="addEmoji('❤️')">❤️</span>
-    <span onclick="addEmoji('🔥')">🔥</span>
-    <span onclick="addEmoji('👍')">👍</span>
+    <div class="emoji-category" id="emojiCategories"></div>
+    <div class="emoji-grid" id="emojiGrid"></div>
   </div>
 
   <div class="input">
@@ -263,6 +301,53 @@ let unsub=null;
 let replyMsg=null;
 let profileUid=null;
 
+// Эмодзи по категориям
+const emojiCategories = {
+  'faces': ['😀','😂','😊','😍','😎','😜','😢','😡','🥳','😴','🤔','🤩','🥺','😇','🤯','😱','🤠','😈','👻','🤖'],
+  'hands': ['👋','🤚','🖐️','✋','🖖','👌','🤏','✌️','🤞','🤟','🤘','🤙','👈','👉','👆','🖕','👇','☝️','👍','👎'],
+  'hearts': ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❤️‍🔥','❤️‍🩹','💕','💞','💓','💗','💖','💘','💝','💟'],
+  'animals': ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🐦','🦆','🦅'],
+  'food': ['🍎','🍐','🍊','🍋','🍌','🍉','🍇','🍓','🫐','🍈','🍒','🍑','🥭','🍍','🥥','🥝','🍅','🥑','🥦','🥐'],
+  'objects': ['💡','📱','💻','⌚','📷','🎮','🔑','💰','💎','✏️','📚','🎵','🎬','⚽','🏀','🎁','🎈','🎀','🛒','📦'],
+  'symbols': ['⭐','🌟','🌈','☀️','☁️','❄️','🔥','💧','🌊','✨','🎯','✅','❌','➡️','⬅️','⬆️','⬇️','↗️','↘️','🔴']
+};
+
+// Инициализация эмодзи
+function initEmojiPanel() {
+  const categoriesContainer = document.getElementById('emojiCategories');
+  const emojiGrid = document.getElementById('emojiGrid');
+  
+  // Создаем кнопки категорий
+  Object.keys(emojiCategories).forEach((cat, index) => {
+    const btn = document.createElement('button');
+    btn.className = `emoji-category-btn ${index === 0 ? 'active' : ''}`;
+    btn.textContent = emojiCategories[cat][0];
+    btn.onclick = () => setEmojiCategory(cat);
+    categoriesContainer.appendChild(btn);
+  });
+  
+  // Загружаем первую категорию
+  setEmojiCategory('faces');
+}
+
+function setEmojiCategory(category) {
+  const emojiGrid = document.getElementById('emojiGrid');
+  const buttons = document.querySelectorAll('.emoji-category-btn');
+  
+  // Обновляем активную кнопку
+  buttons.forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+  
+  // Заполняем сетку эмодзи
+  emojiGrid.innerHTML = '';
+  emojiCategories[category].forEach(emoji => {
+    const span = document.createElement('span');
+    span.textContent = emoji;
+    span.onclick = () => addEmoji(emoji);
+    emojiGrid.appendChild(span);
+  });
+}
+
 /* AUTH */
 async function login(){
   try{await auth.createUserWithEmailAndPassword(email.value,password.value);}
@@ -271,7 +356,10 @@ async function login(){
 
 auth.onAuthStateChanged(async u=>{
   if(!u){show("auth");return;}
-  await db.collection("users").doc(u.uid).update({online:true});
+  await db.collection("users").doc(u.uid).update({
+    online:true,
+    lastSeen: Date.now()
+  });
   const d=await db.collection("users").doc(u.uid).get();
   d.exists?startApp(d.data()):show("profileSetup");
 });
@@ -282,7 +370,8 @@ async function saveProfile(){
     username:username.value,
     avatar:avatar.value||"👤",
     bio:bio.value||"",
-    online:true
+    online:true,
+    lastSeen: Date.now()
   });
   startApp({username:username.value,avatar:avatar.value});
 }
@@ -292,6 +381,10 @@ function startApp(u){
   show("main");
   me.innerText=`${u.avatar||"👤"} ${u.username}`;
   loadUsers(); loadPosts(); loadFriends();
+  initEmojiPanel();
+  
+  // Запускаем обновление времени последнего посещения
+  startLastSeenUpdater();
 }
 
 /* TABS */
@@ -305,17 +398,38 @@ function openTab(id,el){
 /* USERS */
 const cid=(a,b)=>[a,b].sort().join("_");
 
+// Форматирование времени последнего посещения
+function formatLastSeen(timestamp) {
+  if (!timestamp) return "давно";
+  const now = Date.now();
+  const diff = now - timestamp;
+  
+  if (diff < 60000) return "только что";
+  if (diff < 3600000) return `${Math.floor(diff/60000)} мин назад`;
+  if (diff < 86400000) return `${Math.floor(diff/3600000)} ч назад`;
+  if (diff < 604800000) return `${Math.floor(diff/86400000)} дн назад`;
+  
+  const date = new Date(timestamp);
+  return date.toLocaleDateString('ru-RU');
+}
+
 function loadUsers(){
   db.collection("users").onSnapshot(s=>{
     users.innerHTML="";
     s.forEach(d=>{
       if(d.id!==auth.currentUser.uid){
         const u=d.data();
+        const statusText = u.online ? 
+          "🟢 онлайн" : 
+          `⚪ был(а) ${formatLastSeen(u.lastSeen)}`;
+        
         users.innerHTML+=`
         <div class="user" onclick="openChat('${d.id}')">
           <div class="avatar" onclick="event.stopPropagation();openProfile('${d.id}')">${u.avatar||"👤"}</div>
-          ${u.username}
-          <span class="status">${u.online?"🟢":"⚪"}</span>
+          <div style="flex:1">
+            <div>${u.username}</div>
+            <div class="status">${statusText}</div>
+          </div>
         </div>`;
       }
     });
@@ -336,34 +450,101 @@ function openChat(uid){
       chat.innerHTML="";
       s.forEach(d=>{
         const m=d.data();
-        const t=new Date(m.time).toLocaleTimeString([],{
+        const timeStr=new Date(m.time).toLocaleTimeString([],{
           hour:'2-digit',minute:'2-digit'
         });
+        
+        // Определяем статус сообщения
+        let statusIcon = '';
+        if (m.uid === auth.currentUser.uid) {
+          if (m.status === 'sending') statusIcon = '🔄';
+          else if (m.status === 'delivered') statusIcon = '✓';
+          else if (m.status === 'read') statusIcon = '👁️✓';
+          else if (m.status === 'error') statusIcon = '❌';
+          else statusIcon = '✓'; // по умолчанию
+        }
+        
         chat.innerHTML+=`
           <div class="msg ${m.uid===auth.currentUser.uid?"me":""}"
             onclick="reply('${m.text}')">
             ${m.replyTo?`<div class="reply-preview">↩ ${m.replyTo}</div>`:""}
             ${m.text}
-            <small>${t}</small>
+            <small>${timeStr} ${statusIcon}</small>
           </div>`;
       });
       chat.scrollTop=chat.scrollHeight;
+      
+      // Помечаем сообщения как прочитанные
+      markMessagesAsRead(uid);
     });
 }
 
 /* SEND */
-function send(){
-  if(!currentChat||!text.value)return;
-  db.collection("chats").doc(currentChat)
-    .collection("messages")
-    .add({
-      uid:auth.currentUser.uid,
-      text:text.value,
-      replyTo:replyMsg,
-      time:Date.now()
+async function send(){
+  if(!currentChat||!text.value) return;
+  
+  // Создаем уникальный ID для сообщения
+  const messageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const messageData = {
+    uid: auth.currentUser.uid,
+    text: text.value,
+    replyTo: replyMsg,
+    time: Date.now(),
+    status: 'sending',
+    messageId: messageId
+  };
+  
+  try {
+    // Отправляем сообщение
+    await db.collection("chats").doc(currentChat)
+      .collection("messages").doc(messageId)
+      .set(messageData);
+    
+    // Обновляем статус на "доставлено"
+    await db.collection("chats").doc(currentChat)
+      .collection("messages").doc(messageId)
+      .update({ status: 'delivered' });
+    
+    text.value = "";
+    cancelReply();
+    
+  } catch (error) {
+    console.error("Ошибка отправки:", error);
+    // Если ошибка, обновляем статус
+    try {
+      await db.collection("chats").doc(currentChat)
+        .collection("messages").doc(messageId)
+        .update({ status: 'error' });
+    } catch (e) {}
+  }
+}
+
+// Пометить сообщения как прочитанные
+async function markMessagesAsRead(uid) {
+  const chatId = cid(auth.currentUser.uid, uid);
+  
+  try {
+    // Находим все непрочитанные сообщения от собеседника
+    const snapshot = await db.collection("chats").doc(chatId)
+      .collection("messages")
+      .where("uid", "==", uid)
+      .where("status", "in", ["sending", "delivered"])
+      .get();
+    
+    // Обновляем статус на "read"
+    const batch = db.batch();
+    snapshot.forEach(doc => {
+      const ref = db.collection("chats").doc(chatId)
+        .collection("messages").doc(doc.id);
+      batch.update(ref, { status: 'read' });
     });
-  text.value="";
-  cancelReply();
+    
+    if (snapshot.size > 0) {
+      await batch.commit();
+    }
+  } catch (error) {
+    console.error("Ошибка при отметке как прочитано:", error);
+  }
 }
 
 /* REPLY */
@@ -378,8 +559,13 @@ function cancelReply(){
 }
 
 /* EMOJI */
-function toggleEmoji(){emojiPanel.classList.toggle("hidden")}
-function addEmoji(e){text.value+=e}
+function toggleEmoji(){
+  emojiPanel.classList.toggle("hidden");
+}
+function addEmoji(e){
+  text.value+=e;
+  text.focus();
+}
 
 /* PROFILE VIEW */
 async function openProfile(uid){
@@ -442,8 +628,21 @@ function loadFriends(){
   db.collection("users").onSnapshot(s=>{
     friendsList.innerHTML="";
     s.forEach(d=>{
-      if(d.id!==auth.currentUser.uid)
-        friendsList.innerHTML+=`<div class="user" onclick="openProfile('${d.id}')">${d.data().username}</div>`;
+      if(d.id!==auth.currentUser.uid){
+        const u=d.data();
+        const statusText = u.online ? 
+          "🟢 онлайн" : 
+          `⚪ был(а) ${formatLastSeen(u.lastSeen)}`;
+        
+        friendsList.innerHTML+=`
+        <div class="user" onclick="openProfile('${d.id}')">
+          <div class="avatar">${u.avatar||"👤"}</div>
+          <div style="flex:1">
+            <div>${u.username}</div>
+            <div class="status">${statusText}</div>
+          </div>
+        </div>`;
+      }
     });
   });
 }
@@ -455,8 +654,30 @@ function show(id){
   document.getElementById(id).classList.remove("hidden");
 }
 function back(){show("main")}
-function logout(){
-  db.collection("users").doc(auth.currentUser.uid).update({online:false});
+
+// Обновление времени последнего посещения
+function startLastSeenUpdater() {
+  // Обновляем каждые 30 секунд
+  setInterval(async () => {
+    if (auth.currentUser) {
+      try {
+        await db.collection("users").doc(auth.currentUser.uid).update({
+          lastSeen: Date.now()
+        });
+      } catch (error) {
+        console.error("Ошибка обновления lastSeen:", error);
+      }
+    }
+  }, 30000);
+}
+
+async function logout(){
+  if (auth.currentUser) {
+    await db.collection("users").doc(auth.currentUser.uid).update({
+      online: false,
+      lastSeen: Date.now()
+    });
+  }
   auth.signOut();
 }
 </script>
