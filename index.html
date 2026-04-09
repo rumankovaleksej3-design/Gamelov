@@ -1,1339 +1,145 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ChatNet Pro</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Case Opening Demo</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0c1b13;
+      color: #fff;
+    }
 
-<style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      background: #0f2a1d;
+    }
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-  color: #e2e8f0;
-  height: 100vh;
-  overflow: hidden;
-}
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: #7CFF7C;
+    }
 
-.hidden {
-  display: none !important;
-}
+    .btn {
+      background: #7CFF7C;
+      color: #000;
+      padding: 10px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      border: none;
+    }
 
-.container {
-  width: 100%;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
+    .banner {
+      display: flex;
+      gap: 20px;
+      padding: 20px;
+    }
 
-/* АВТОРИЗАЦИЯ */
-#auth {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-  padding: 40px 20px;
-}
+    .card {
+      flex: 1;
+      padding: 20px;
+      border-radius: 15px;
+      background: linear-gradient(135deg, #1e3c2f, #2e6b4b);
+    }
 
-#auth h2 {
-  font-size: 3rem;
-  color: white;
-  margin-bottom: 40px;
-  font-weight: 800;
-  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
+    .cases {
+      padding: 20px;
+    }
 
-#auth input {
-  width: 100%;
-  max-width: 320px;
-  padding: 16px 20px;
-  margin-bottom: 20px;
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  background: rgba(30, 41, 59, 0.8);
-  color: white;
-  font-size: 16px;
-}
+    .cases h2 {
+      margin-bottom: 15px;
+    }
 
-#auth button {
-  width: 100%;
-  max-width: 320px;
-  padding: 16px;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-size: 18px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 10px;
-}
+    .case-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 15px;
+    }
 
-/* ОСНОВНОЙ ИНТЕРФЕЙС */
-#main {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-}
+    .case-item {
+      background: #13291d;
+      border-radius: 12px;
+      padding: 15px;
+      text-align: center;
+      transition: 0.2s;
+    }
 
-/* ШАПКА */
-header {
-  background: rgba(15, 23, 42, 0.95);
-  padding: 16px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
+    .case-item:hover {
+      transform: scale(1.05);
+      background: #1c3d2a;
+    }
 
-#me {
-  font-size: 18px;
-  font-weight: 600;
-  color: #e2e8f0;
-  cursor: pointer;
-  padding: 10px 18px;
-  border-radius: 12px;
-  background: rgba(30, 41, 59, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
+    .case-img {
+      width: 100%;
+      height: 120px;
+      background: #333;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
 
-.header-actions {
-  display: flex;
-  gap: 10px;
-}
-
-.header-btn {
-  padding: 10px 16px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(30, 41, 59, 0.8);
-  color: #e2e8f0;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-/* ВКЛАДКИ */
-.tabs {
-  display: flex;
-  background: rgba(15, 23, 42, 0.95);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 0 20px;
-}
-
-.tab {
-  flex: 1;
-  padding: 18px;
-  text-align: center;
-  cursor: pointer;
-  font-weight: 500;
-  color: #94a3b8;
-  border-bottom: 3px solid transparent;
-}
-
-.tab.active {
-  color: #60a5fa;
-  border-bottom-color: #60a5fa;
-  font-weight: 600;
-}
-
-/* ЧАТЫ */
-#chats {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-#users {
-  flex: 1;
-  overflow-y: auto;
-  padding: 20px;
-}
-
-.user {
-  padding: 16px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  cursor: pointer;
-  border-radius: 16px;
-  margin-bottom: 10px;
-  background: rgba(30, 41, 59, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.user:hover {
-  background: rgba(51, 65, 85, 0.6);
-}
-
-.avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  color: white;
-}
-
-.user-info div:first-child {
-  font-weight: 600;
-  color: #f1f5f9;
-  margin-bottom: 4px;
-}
-
-.status {
-  font-size: 13px;
-  color: #94a3b8;
-}
-
-/* ОКНО ЧАТА */
-.chat {
-  flex: 1;
-  overflow-y: auto;
-  padding: 24px;
-}
-
-.msg {
-  max-width: 75%;
-  padding: 14px 18px;
-  margin: 8px 0;
-  border-radius: 18px;
-  background: rgba(30, 41, 59, 0.8);
-  word-wrap: break-word;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  position: relative;
-}
-
-.msg:hover .msg-actions {
-  display: flex;
-}
-
-.msg.me {
-  margin-left: auto;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-  color: white;
-}
-
-.msg small {
-  display: block;
-  font-size: 11px;
-  opacity: 0.7;
-  text-align: right;
-  margin-top: 6px;
-}
-
-/* ДЕЙСТВИЯ С СООБЩЕНИЯМИ */
-.msg-actions {
-  position: absolute;
-  right: -40px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: none;
-  flex-direction: column;
-  gap: 5px;
-  background: rgba(30, 41, 59, 0.9);
-  padding: 8px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
-
-.msg-action-btn {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(51, 65, 85, 0.8);
-  color: #e2e8f0;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-}
-
-.msg-action-btn:hover {
-  background: #3b82f6;
-  color: white;
-}
-
-/* ПАНЕЛЬ ВВОДА */
-.input {
-  display: flex;
-  gap: 12px;
-  padding: 20px;
-  background: rgba(15, 23, 42, 0.95);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.input input {
-  flex: 1;
-  padding: 16px 20px;
-  border-radius: 25px;
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  font-size: 16px;
-  background: rgba(30, 41, 59, 0.8);
-  color: #e2e8f0;
-}
-
-.input button {
-  width: 48px;
-  height: 48px;
-  border: none;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-  color: white;
-  font-size: 20px;
-}
-
-/* МОДАЛЬНЫЕ ОКНА */
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background: #1e293b;
-  padding: 30px;
-  border-radius: 20px;
-  max-width: 500px;
-  width: 90%;
-  max-height: 80vh;
-  overflow-y: auto;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.modal-title {
-  font-size: 24px;
-  font-weight: 600;
-  margin-bottom: 20px;
-  color: white;
-}
-
-.modal-close {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  background: none;
-  border: none;
-  color: white;
-  font-size: 24px;
-  cursor: pointer;
-}
-
-/* ПРОФИЛИ */
-.profile-header {
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-  padding: 50px 20px 30px;
-  text-align: center;
-  position: relative;
-}
-
-.profile-avatar {
-  font-size: 64px;
-  width: 120px;
-  height: 120px;
-  margin: 0 auto 25px;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(139, 92, 246, 0.3));
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 4px solid rgba(255, 255, 255, 0.2);
-}
-
-/* УВЕДОМЛЕНИЯ */
-.notification {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  padding: 15px 20px;
-  background: #1e293b;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-  z-index: 1000;
-  max-width: 300px;
-  animation: slideInRight 0.3s ease;
-}
-
-@keyframes slideInRight {
-  from {
-    transform: translateX(100px);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-.notification.success {
-  border-left: 4px solid #22c55e;
-}
-
-.notification.error {
-  border-left: 4px solid #ef4444;
-}
-
-.notification.info {
-  border-left: 4px solid #3b82f6;
-}
-
-/* СКРОЛЛБАР */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: rgba(30, 41, 59, 0.5);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #3b82f6;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #2563eb;
-}
-
-/* АНИМАЦИИ */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.msg {
-  animation: fadeIn 0.3s ease;
-}
-</style>
-
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    footer {
+      text-align: center;
+      padding: 20px;
+      opacity: 0.6;
+    }
+  </style>
 </head>
-
 <body>
-<div class="container">
 
-<!-- АВТОРИЗАЦИЯ -->
-<div id="auth">
-  <h2>ChatNet Pro</h2>
-  <input id="email" placeholder="Email"><br><br>
-  <input id="password" type="password" placeholder="Пароль"><br><br>
-  <button onclick="login()">Войти / Регистрация</button>
-</div>
-
-<!-- PROFILE SETUP -->
-<div id="profileSetup" class="hidden">
-  <div class="profile-header">
-    <div class="profile-avatar" id="setupAvatarPreview">👤</div>
-    <div style="font-size: 28px; font-weight: 700; margin-bottom: 8px; color: white;">Создание профиля</div>
-  </div>
-  
-  <div style="padding: 20px;">
-    <div style="font-size: 18px; font-weight: 600; margin-bottom: 16px; color: #60a5fa;">Выберите аватар</div>
-    <div id="avatarSelectorSetup" style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin: 20px 0;">
-      <div class="avatar-option selected" onclick="selectAvatar('👤', 'setup')">👤</div>
-      <div class="avatar-option" onclick="selectAvatar('😎', 'setup')">😎</div>
-      <div class="avatar-option" onclick="selectAvatar('🤖', 'setup')">🤖</div>
-      <div class="avatar-option" onclick="selectAvatar('🐶', 'setup')">🐶</div>
-      <div class="avatar-option" onclick="selectAvatar('🦊', 'setup')">🦊</div>
-      <div class="avatar-option" onclick="selectAvatar('👑', 'setup')">👑</div>
-    </div>
-    
-    <input id="username" placeholder="Ваш никнейм" style="width:100%;margin:10px 0; padding: 14px; border-radius: 12px; border: 2px solid rgba(255, 255, 255, 0.1); background: rgba(30, 41, 59, 0.8); color: white;"><br>
-    
-    <div style="font-size: 18px; font-weight: 600; margin: 20px 0 16px; color: #60a5fa;">Статус</div>
-    <div id="statusSelectorSetup" style="display: flex; gap: 12px; margin: 20px 0;">
-      <div class="status-option selected" onclick="selectStatus('online', 'setup')">🟢 В сети</div>
-      <div class="status-option" onclick="selectStatus('busy', 'setup')">🟡 Занят</div>
-      <div class="status-option" onclick="selectStatus('invisible', 'setup')">⚪ Невидимка</div>
-    </div>
-    
-    <button onclick="saveProfile()" style="width:100%;padding:16px;background:linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; border: none; border-radius: 12px; font-weight: 600;">Создать профиль</button>
-  </div>
-</div>
-
-<!-- ОСНОВНОЙ ИНТЕРФЕЙС -->
-<div id="main" class="hidden">
 <header>
-  <span id="me" onclick="openMyProfile()" style="cursor:pointer"></span>
-  <div class="header-actions">
-    <button class="header-btn" onclick="showGroupCreation()">👥 Создать группу</button>
-    <button class="header-btn" onclick="logout()">🚪 Выйти</button>
-  </div>
+  <div class="logo">jabka</div>
+  <button class="btn">Авторизация</button>
 </header>
 
-<div id="chats">
-  <div class="chat" id="chat"></div>
-
-  <div class="input">
-    <input id="text" placeholder="Сообщение" onkeypress="if(event.key=='Enter') send()">
-    <button onclick="send()">➤</button>
+<section class="banner">
+  <div class="card">
+    <h3>Бесплатный кейс</h3>
+    <p>за первый депозит</p>
+    <button class="btn">Получить</button>
   </div>
-
-  <div style="padding: 20px; font-weight: 600; color: #f1f5f9; background: rgba(15, 23, 42, 0.95); border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
-    Пользователи
+  <div class="card">
+    <h3>Промокод</h3>
+    <p>+13% к депозиту</p>
+    <button class="btn">Активировать</button>
   </div>
-  <div id="users"></div>
-</div>
-
-<div id="news" class="hidden">
-  <div style="padding: 24px;">
-    <textarea id="postText" placeholder="Что нового?" style="width:100%;padding:18px 20px;border:2px solid rgba(255,255,255,0.1);border-radius:16px;background:rgba(30,41,59,0.8);color:#e2e8f0;min-height:120px;margin-bottom:20px;"></textarea><br>
-    <button onclick="createPost()" style="padding:14px 30px;background:linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);color:white;border:none;border-radius:12px;font-weight:600;cursor:pointer;">Опубликовать</button>
+  <div class="card">
+    <h3>VIP CLUB</h3>
+    <p>Кешбек и бонусы</p>
+    <button class="btn">Вступить</button>
   </div>
-  <div id="posts"></div>
-</div>
+</section>
 
-<div id="friends" class="hidden">
-  <div style="padding:24px;">
-    <div style="font-weight: 600; color: #f1f5f9; margin-bottom: 20px; font-size: 18px;">Друзья</div>
-    <div id="friendsList"></div>
-  </div>
-</div>
-
-<div class="tabs">
-  <div class="tab active" onclick="openTab('chats',this)">💬 Чаты</div>
-  <div class="tab" onclick="openTab('news',this)">📰 Новости</div>
-  <div class="tab" onclick="openTab('friends',this)">👥 Друзья</div>
-</div>
-
-</div>
-
-<!-- ПРОСМОТР ПРОФИЛЯ -->
-<div id="profileView" class="hidden">
-  <div class="profile-header">
-    <button onclick="back()" style="position: absolute; left: 20px; top: 20px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 12px 18px; border-radius: 12px; cursor: pointer;">← Назад</button>
-    <div class="profile-avatar" id="pAvatar">👤</div>
-    <div style="font-size: 28px; font-weight: 700; margin-bottom: 8px; color: #f1f5f9;" id="pName"></div>
-    <div style="font-size: 16px; color: #94a3b8; margin-bottom: 25px;" id="pStatus"></div>
-  </div>
-  
-  <div style="padding: 20px;">
-    <div style="font-size: 18px; font-weight: 600; margin-bottom: 16px; color: #60a5fa;">О себе</div>
-    <div id="pBio" style="background: rgba(30, 41, 59, 0.6); padding: 20px; border-radius: 16px; line-height: 1.6;">Пользователь еще не добавил информацию о себе</div>
-    
-    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 30px 0;">
-      <div style="text-align: center;">
-        <div style="font-size: 24px; font-weight: 800; color: #60a5fa;" id="pMessages">0</div>
-        <div style="font-size: 12px; color: #94a3b8;">Сообщений</div>
-      </div>
-      <div style="text-align: center;">
-        <div style="font-size: 24px; font-weight: 800; color: #60a5fa;" id="pFriends">0</div>
-        <div style="font-size: 12px; color: #94a3b8;">Друзей</div>
-      </div>
-      <div style="text-align: center;">
-        <div style="font-size: 24px; font-weight: 800; color: #60a5fa;" id="pPosts">0</div>
-        <div style="font-size: 12px; color: #94a3b8;">Постов</div>
-      </div>
+<section class="cases">
+  <h2>Популярные кейсы</h2>
+  <div class="case-grid">
+    <div class="case-item">
+      <div class="case-img"></div>
+      <p>Case #1</p>
     </div>
-    
-    <div style="margin-top: 30px; display: flex; gap: 12px;">
-      <button onclick="writeFromProfile()" style="flex:1;padding:14px;background:linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);color:white;border:none;border-radius:12px;cursor:pointer;">✉️ Написать</button>
-      <button onclick="toggleFriend()" id="friendBtn" style="flex:1;padding:14px;background:rgba(30,41,59,0.8);color:#e2e8f0;border:1px solid rgba(255,255,255,0.1);border-radius:12px;cursor:pointer;">🤝 Добавить в друзья</button>
+    <div class="case-item">
+      <div class="case-img"></div>
+      <p>Case #2</p>
+    </div>
+    <div class="case-item">
+      <div class="case-img"></div>
+      <p>Case #3</p>
+    </div>
+    <div class="case-item">
+      <div class="case-img"></div>
+      <p>Case #4</p>
     </div>
   </div>
-</div>
+</section>
 
-<!-- МОЙ ПРОФИЛЬ -->
-<div id="myProfile" class="hidden">
-  <div class="profile-header">
-    <button onclick="back()" style="position: absolute; left: 20px; top: 20px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 12px 18px; border-radius: 12px; cursor: pointer;">← Назад</button>
-    <div class="profile-avatar" id="myAvatarPreview">👤</div>
-    <div style="font-size: 28px; font-weight: 700; margin-bottom: 8px; color: #f1f5f9;">Мой профиль</div>
-    <div style="font-size: 16px; color: #94a3b8; margin-bottom: 25px;" id="myStatusPreview">🟢 В сети</div>
-  </div>
-  
-  <div style="padding: 20px;">
-    <input id="myUsername" placeholder="Никнейм" style="width:100%;margin:10px 0; padding: 14px; border-radius: 12px; border: 2px solid rgba(255, 255, 255, 0.1); background: rgba(30, 41, 59, 0.8); color: white;">
-    
-    <div style="font-size: 18px; font-weight: 600; margin: 20px 0 16px; color: #60a5fa;">Аватар</div>
-    <div id="avatarSelector" style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin: 20px 0;">
-      <div class="avatar-option selected" onclick="selectAvatar('👤', 'my')">👤</div>
-      <div class="avatar-option" onclick="selectAvatar('😎', 'my')">😎</div>
-      <div class="avatar-option" onclick="selectAvatar('🤖', 'my')">🤖</div>
-      <div class="avatar-option" onclick="selectAvatar('🐶', 'my')">🐶</div>
-      <div class="avatar-option" onclick="selectAvatar('🦊', 'my')">🦊</div>
-      <div class="avatar-option" onclick="selectAvatar('👑', 'my')">👑</div>
-    </div>
-    
-    <div style="font-size: 18px; font-weight: 600; margin: 20px 0 16px; color: #60a5fa;">Статус</div>
-    <div id="statusSelector" style="display: flex; gap: 12px; margin: 20px 0;">
-      <div class="status-option selected" onclick="selectStatus('online', 'my')">🟢 В сети</div>
-      <div class="status-option" onclick="selectStatus('busy', 'my')">🟡 Занят</div>
-      <div class="status-option" onclick="selectStatus('invisible', 'my')">⚪ Невидимка</div>
-    </div>
-    
-    <div style="font-size: 18px; font-weight: 600; margin: 20px 0 16px; color: #60a5fa;">О себе</div>
-    <textarea id="myBio" placeholder="Расскажите о себе..." style="width:100%;height:100px;padding:14px;border-radius:12px;border:2px solid rgba(255,255,255,0.1);background:rgba(30,41,59,0.8);color:white;margin-bottom:20px;"></textarea>
-    
-    <button onclick="updateMyProfile()" style="width:100%;padding:16px;background:linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);color:white;border:none;border-radius:12px;font-weight:600;cursor:pointer;margin-top:20px;">💾 Сохранить</button>
-  </div>
-</div>
+<footer>
+  © 2026 Case Opening Demo
+</footer>
 
-<!-- МОДАЛЬНЫЕ ОКНА -->
-
-<!-- СОЗДАНИЕ ГРУППЫ -->
-<div id="groupCreationModal" class="modal hidden">
-  <div class="modal-content">
-    <button class="modal-close" onclick="closeModal('groupCreationModal')">×</button>
-    <div class="modal-title">Создание группы</div>
-    
-    <input type="text" id="groupNameInput" placeholder="Название группы" style="width:100%;margin-bottom:15px;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(30,41,59,0.8);color:white;">
-    
-    <div style="margin: 15px 0;">
-      <div style="font-weight:600;margin-bottom:10px;color:white;">Выберите участников:</div>
-      <div id="groupMembersList" style="max-height:200px;overflow-y:auto;padding:10px;background:rgba(30,41,59,0.6);border-radius:8px;"></div>
-    </div>
-    
-    <button onclick="createGroup()" style="width:100%;padding:14px;background:linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer;">Создать группу</button>
-  </div>
-</div>
-
-</div>
-
-<script>
-// Firebase конфигурация
-firebase.initializeApp({
-  apiKey: "AIzaSyDioAafJRuJ4eMGK25-RsQb8M95CWlb1BY",
-  authDomain: "chatnet-2a748.firebaseapp.com",
-  projectId: "chatnet-2a748"
-});
-
-const auth = firebase.auth();
-const db = firebase.firestore();
-
-let currentUser = null;
-let currentChat = null;
-let unsub = null;
-let selectedGroupMembers = new Set();
-let profileUid = null;
-let selectedAvatar = '👤';
-let selectedStatus = 'online';
-
-// === ОСНОВНЫЕ ФУНКЦИИ ===
-
-async function login() {
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-  
-  if (!email || !password) {
-    showNotification('Заполните все поля', 'error');
-    return;
-  }
-  
-  try {
-    await auth.signInWithEmailAndPassword(email, password);
-    showNotification('Вход выполнен', 'success');
-  } catch (error) {
-    if (error.code === 'auth/user-not-found') {
-      try {
-        await auth.createUserWithEmailAndPassword(email, password);
-        showNotification('Регистрация выполнена', 'success');
-      } catch (regError) {
-        showNotification('Ошибка регистрации: ' + regError.message, 'error');
-      }
-    } else {
-      showNotification('Ошибка входа: ' + error.message, 'error');
-    }
-  }
-}
-
-auth.onAuthStateChanged(async user => {
-  if (!user) {
-    show("auth");
-    return;
-  }
-  
-  currentUser = user;
-  
-  try {
-    const userDoc = await db.collection("users").doc(user.uid).get();
-    
-    if (!userDoc.exists) {
-      show("profileSetup");
-    } else {
-      startApp(userDoc.data());
-    }
-  } catch (error) {
-    showNotification('Ошибка загрузки профиля: ' + error.message, 'error');
-  }
-});
-
-async function saveProfile() {
-  const username = document.getElementById('username').value.trim();
-  if (!username) {
-    showNotification('Введите никнейм', 'error');
-    return;
-  }
-  
-  try {
-    await db.collection("users").doc(auth.currentUser.uid).set({
-      username: username,
-      avatar: selectedAvatar || "👤",
-      bio: "",
-      online: true,
-      lastSeen: Date.now(),
-      status: selectedStatus || 'online',
-      createdAt: Date.now(),
-      role: 'user',
-      friends: [],
-      groups: [],
-      stats: {
-        messages: 0,
-        posts: 0,
-        friends: 0
-      }
-    });
-    
-    startApp({ username: username, avatar: selectedAvatar });
-    showNotification('Профиль создан', 'success');
-  } catch (error) {
-    showNotification('Ошибка создания профиля: ' + error.message, 'error');
-  }
-}
-
-function startApp(userData) {
-  show("main");
-  document.getElementById('me').innerText = `${userData.avatar || "👤"} ${userData.username}`;
-  loadUsers();
-  loadPosts();
-  loadFriends();
-  showNotification(`Добро пожаловать, ${userData.username}!`, 'success');
-}
-
-// === ПОЛЬЗОВАТЕЛИ И ЧАТЫ ===
-
-function loadUsers() {
-  db.collection("users").onSnapshot(snapshot => {
-    const usersContainer = document.getElementById('users');
-    usersContainer.innerHTML = '';
-    
-    snapshot.forEach(doc => {
-      if (doc.id !== auth.currentUser.uid) {
-        const user = doc.data();
-        const statusText = getStatusText(user);
-        
-        const userDiv = document.createElement('div');
-        userDiv.className = 'user';
-        userDiv.innerHTML = `
-          <div class="avatar" onclick="event.stopPropagation();openProfile('${doc.id}')">${user.avatar || "👤"}</div>
-          <div class="user-info" onclick="openChat('${doc.id}')">
-            <div>${user.username}</div>
-            <div class="status">${statusText}</div>
-          </div>
-        `;
-        usersContainer.appendChild(userDiv);
-      }
-    });
-  });
-}
-
-function getStatusText(user) {
-  if (user.status === 'invisible') {
-    return '⚪ Не в сети';
-  } else if (user.online) {
-    return `🟢 ${user.status === 'busy' ? 'Занят' : 'В сети'}`;
-  } else {
-    const lastSeen = formatLastSeen(user.lastSeen);
-    return `⚪ был(а) ${lastSeen}`;
-  }
-}
-
-function formatLastSeen(timestamp) {
-  if (!timestamp) return "давно";
-  const diff = Date.now() - timestamp;
-  
-  if (diff < 60000) return "только что";
-  if (diff < 3600000) return `${Math.floor(diff/60000)} мин назад`;
-  if (diff < 86400000) return `${Math.floor(diff/3600000)} ч назад`;
-  
-  const date = new Date(timestamp);
-  return date.toLocaleDateString('ru-RU');
-}
-
-// Открыть чат
-function openChat(uid) {
-  currentChat = cid(auth.currentUser.uid, uid);
-  
-  if (unsub) unsub();
-  
-  document.getElementById('chat').innerHTML = '';
-  
-  unsub = db.collection("chats").doc(currentChat)
-    .collection("messages")
-    .orderBy("time")
-    .onSnapshot(snapshot => {
-      const chat = document.getElementById('chat');
-      chat.innerHTML = '';
-      
-      snapshot.forEach(doc => {
-        const msg = doc.data();
-        displayMessage(msg, chat);
-      });
-      
-      chat.scrollTop = chat.scrollHeight;
-    });
-}
-
-function cid(a, b) {
-  return [a, b].sort().join("_");
-}
-
-// Отправить сообщение
-async function send() {
-  const textInput = document.getElementById('text');
-  const text = textInput.value.trim();
-  
-  if (!text || !currentChat) {
-    showNotification('Введите сообщение', 'error');
-    return;
-  }
-  
-  try {
-    await db.collection("chats").doc(currentChat)
-      .collection("messages").add({
-        uid: auth.currentUser.uid,
-        text: text,
-        time: Date.now(),
-        status: 'delivered'
-      });
-    
-    textInput.value = "";
-    showNotification('Сообщение отправлено', 'success');
-    
-  } catch (error) {
-    showNotification('Ошибка отправки: ' + error.message, 'error');
-  }
-}
-
-// Показать сообщение
-function displayMessage(msg, container) {
-  const timeStr = new Date(msg.time).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
-  const isOwnMessage = msg.uid === auth.currentUser.uid;
-  
-  const messageHTML = `
-    <div class="msg ${isOwnMessage ? "me" : ""}">
-      ${msg.text}
-      <small>${timeStr}</small>
-    </div>
-  `;
-  
-  container.innerHTML += messageHTML;
-}
-
-// === ПРОФИЛИ ===
-
-// Открыть профиль пользователя
-async function openProfile(uid) {
-  profileUid = uid;
-  
-  try {
-    const userDoc = await db.collection("users").doc(uid).get();
-    if (!userDoc.exists) {
-      showNotification('Пользователь не найден', 'error');
-      return;
-    }
-    
-    const user = userDoc.data();
-    
-    document.getElementById('pAvatar').textContent = user.avatar || "👤";
-    document.getElementById('pName').textContent = user.username;
-    document.getElementById('pStatus').textContent = getStatusText(user);
-    document.getElementById('pBio').textContent = user.bio || "Пользователь еще не добавил информацию о себе";
-    document.getElementById('pMessages').textContent = user.stats?.messages || 0;
-    document.getElementById('pFriends').textContent = user.stats?.friends || 0;
-    document.getElementById('pPosts').textContent = user.stats?.posts || 0;
-    
-    // Проверяем, есть ли в друзьях
-    const myDoc = await db.collection("users").doc(auth.currentUser.uid).get();
-    const myFriends = myDoc.data()?.friends || [];
-    const friendBtn = document.getElementById('friendBtn');
-    
-    if (myFriends.includes(uid)) {
-      friendBtn.textContent = '🤝 Удалить из друзей';
-      friendBtn.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
-    } else {
-      friendBtn.textContent = '🤝 Добавить в друзья';
-      friendBtn.style.background = 'rgba(30,41,59,0.8)';
-    }
-    
-    show("profileView");
-    
-  } catch (error) {
-    showNotification('Ошибка загрузки профиля: ' + error.message, 'error');
-  }
-}
-
-// Открыть мой профиль
-async function openMyProfile() {
-  try {
-    const userDoc = await db.collection("users").doc(auth.currentUser.uid).get();
-    const user = userDoc.data();
-    
-    document.getElementById('myUsername').value = user.username || "";
-    document.getElementById('myBio').value = user.bio || "";
-    document.getElementById('myAvatarPreview').textContent = user.avatar || "👤";
-    
-    // Устанавливаем текущий статус
-    selectedStatus = user.status || 'online';
-    const statusText = {
-      'online': '🟢 В сети',
-      'busy': '🟡 Занят',
-      'invisible': '⚪ Невидимка'
-    };
-    document.getElementById('myStatusPreview').textContent = statusText[selectedStatus] || '🟢 В сети';
-    
-    // Выделяем текущий аватар
-    document.querySelectorAll('#avatarSelector .avatar-option').forEach(el => {
-      el.classList.remove('selected');
-      if (el.textContent === user.avatar) {
-        el.classList.add('selected');
-      }
-    });
-    
-    // Выделяем текущий статус
-    document.querySelectorAll('#statusSelector .status-option').forEach(el => {
-      el.classList.remove('selected');
-      if (el.textContent.includes(statusText[selectedStatus]?.substring(2))) {
-        el.classList.add('selected');
-      }
-    });
-    
-    show("myProfile");
-    
-  } catch (error) {
-    showNotification('Ошибка загрузки профиля: ' + error.message, 'error');
-  }
-}
-
-// Обновить мой профиль
-async function updateMyProfile() {
-  const username = document.getElementById('myUsername').value.trim();
-  if (!username) {
-    showNotification('Введите никнейм', 'error');
-    return;
-  }
-  
-  try {
-    await db.collection("users").doc(auth.currentUser.uid).update({
-      username: username,
-      avatar: selectedAvatar || document.getElementById('myAvatarPreview').textContent,
-      bio: document.getElementById('myBio').value,
-      status: selectedStatus || 'online'
-    });
-    
-    document.getElementById('me').innerText = `${selectedAvatar || "👤"} ${username}`;
-    showNotification('Профиль обновлен', 'success');
-    back();
-    
-  } catch (error) {
-    showNotification('Ошибка обновления: ' + error.message, 'error');
-  }
-}
-
-// Выбор аватара
-function selectAvatar(avatar, type) {
-  selectedAvatar = avatar;
-  
-  if (type === 'setup') {
-    document.getElementById('setupAvatarPreview').textContent = avatar;
-    document.querySelectorAll('#avatarSelectorSetup .avatar-option').forEach(el => {
-      el.classList.remove('selected');
-    });
-    event.target.classList.add('selected');
-  } else if (type === 'my') {
-    document.getElementById('myAvatarPreview').textContent = avatar;
-    document.querySelectorAll('#avatarSelector .avatar-option').forEach(el => {
-      el.classList.remove('selected');
-    });
-    event.target.classList.add('selected');
-  }
-}
-
-// Выбор статуса
-function selectStatus(status, type) {
-  selectedStatus = status;
-  
-  if (type === 'setup') {
-    document.querySelectorAll('#statusSelectorSetup .status-option').forEach(el => {
-      el.classList.remove('selected');
-    });
-    event.target.classList.add('selected');
-  } else if (type === 'my') {
-    const statusText = {
-      'online': '🟢 В сети',
-      'busy': '🟡 Занят',
-      'invisible': '⚪ Невидимка'
-    };
-    document.getElementById('myStatusPreview').textContent = statusText[status] || '🟢 В сети';
-    document.querySelectorAll('#statusSelector .status-option').forEach(el => {
-      el.classList.remove('selected');
-    });
-    event.target.classList.add('selected');
-  }
-}
-
-// Добавить/удалить друга
-async function toggleFriend() {
-  if (!profileUid) return;
-  
-  try {
-    const myRef = db.collection("users").doc(auth.currentUser.uid);
-    const myDoc = await myRef.get();
-    const myFriends = myDoc.data()?.friends || [];
-    
-    if (myFriends.includes(profileUid)) {
-      // Удаляем из друзей
-      await myRef.update({
-        friends: firebase.firestore.FieldValue.arrayRemove(profileUid),
-        'stats.friends': firebase.firestore.FieldValue.increment(-1)
-      });
-      document.getElementById('friendBtn').textContent = '🤝 Добавить в друзья';
-      document.getElementById('friendBtn').style.background = 'rgba(30,41,59,0.8)';
-      showNotification('Удален из друзей', 'success');
-      
-      // Обновляем статистику у другого пользователя
-      await db.collection("users").doc(profileUid).update({
-        'stats.friends': firebase.firestore.FieldValue.increment(-1)
-      });
-    } else {
-      // Добавляем в друзей
-      await myRef.update({
-        friends: firebase.firestore.FieldValue.arrayUnion(profileUid),
-        'stats.friends': firebase.firestore.FieldValue.increment(1)
-      });
-      document.getElementById('friendBtn').textContent = '🤝 Удалить из друзей';
-      document.getElementById('friendBtn').style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
-      showNotification('Добавлен в друзья', 'success');
-      
-      // Обновляем статистику у другого пользователя
-      await db.collection("users").doc(profileUid).update({
-        'stats.friends': firebase.firestore.FieldValue.increment(1)
-      });
-    }
-    
-  } catch (error) {
-    showNotification('Ошибка: ' + error.message, 'error');
-  }
-}
-
-// Написать из профиля
-function writeFromProfile() {
-  if (!profileUid) return;
-  back();
-  openChat(profileUid);
-}
-
-// === ГРУППОВЫЕ ЧАТЫ ===
-
-// Показать создание группы
-async function showGroupCreation() {
-  await loadUsersForGroup();
-  showModal('groupCreationModal');
-}
-
-// Загрузить пользователей для группы
-async function loadUsersForGroup() {
-  const membersList = document.getElementById('groupMembersList');
-  membersList.innerHTML = '';
-  selectedGroupMembers.clear();
-  
-  try {
-    const snapshot = await db.collection("users").get();
-    
-    snapshot.forEach(doc => {
-      if (doc.id !== auth.currentUser.uid) {
-        const user = doc.data();
-        const div = document.createElement('div');
-        div.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;margin-bottom:5px;cursor:pointer;border:1px solid rgba(255,255,255,0.1);';
-        div.innerHTML = `
-          <div class="avatar" style="width:32px;height:32px;font-size:16px;">${user.avatar || '👤'}</div>
-          <div style="color:white;">${user.username}</div>
-          <div style="margin-left:auto;color:#3b82f6;">+</div>
-        `;
-        div.onclick = () => toggleGroupMember(doc.id, div);
-        membersList.appendChild(div);
-      }
-    });
-  } catch (error) {
-    membersList.innerHTML = `<div style="color:#ef4444;padding:20px;text-align:center;">Ошибка загрузки: ${error.message}</div>`;
-  }
-}
-
-function toggleGroupMember(uid, element) {
-  if (selectedGroupMembers.has(uid)) {
-    selectedGroupMembers.delete(uid);
-    element.style.background = '';
-    element.querySelector('div:last-child').textContent = '+';
-    element.querySelector('div:last-child').style.color = '#3b82f6';
-  } else {
-    selectedGroupMembers.add(uid);
-    element.style.background = 'rgba(59, 130, 246, 0.2)';
-    element.querySelector('div:last-child').textContent = '✓';
-    element.querySelector('div:last-child').style.color = '#22c55e';
-  }
-}
-
-// Создать группу
-async function createGroup() {
-  const groupName = document.getElementById('groupNameInput').value.trim();
-  
-  if (!groupName) {
-    showNotification('Введите название группы', 'error');
-    return;
-  }
-  
-  if (selectedGroupMembers.size === 0) {
-    showNotification('Выберите участников группы', 'error');
-    return;
-  }
-  
-  try {
-    const groupId = 'group_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-    const members = Array.from(selectedGroupMembers);
-    members.push(auth.currentUser.uid);
-    
-    const groupData = {
-      id: groupId,
-      name: groupName,
-      avatar: '👥',
-      creator: auth.currentUser.uid,
-      members: members,
-      admins: [auth.currentUser.uid],
-      createdAt: Date.now()
-    };
-    
-    await db.collection('groups').doc(groupId).set(groupData);
-    
-    const batch = db.batch();
-    members.forEach(memberId => {
-      const userRef = db.collection('users').doc(memberId);
-      batch.update(userRef, {
-        groups: firebase.firestore.FieldValue.arrayUnion(groupId)
-      });
-    });
-    await batch.commit();
-    
-    showNotification(`Группа "${groupName}" создана!`, 'success');
-    closeModal('groupCreationModal');
-    document.getElementById('groupNameInput').value = '';
-    selectedGroupMembers.clear();
-    
-  } catch (error) {
-    showNotification('Ошибка создания группы: ' + error.message, 'error');
-  }
-}
-
-// === НОВОСТИ ===
-
-function loadPosts() {
-  db.collection("posts").orderBy("time", "desc").onSnapshot(snapshot => {
-    const postsContainer = document.getElementById('posts');
-    postsContainer.innerHTML = '';
-    
-    snapshot.forEach(doc => {
-      const post = doc.data();
-      const postDiv = document.createElement('div');
-      postDiv.className = 'post';
-      postDiv.style.cssText = 'background:rgba(30,41,59,0.8);padding:20px;border-radius:16px;margin-bottom:20px;border:1px solid rgba(255,255,255,0.05);';
-      postDiv.innerHTML = `
-        <b>${post.username}</b><br>
-        ${post.text}
-      `;
-      postsContainer.appendChild(postDiv);
-    });
-  });
-}
-
-async function createPost() {
-  const postText = document.getElementById('postText').value.trim();
-  if (!postText) {
-    showNotification('Введите текст поста', 'error');
-    return;
-  }
-  
-  try {
-    const userDoc = await db.collection("users").doc(auth.currentUser.uid).get();
-    const username = userDoc.data()?.username || 'Аноним';
-    
-    await db.collection("posts").add({
-      username: username,
-      text: postText,
-      time: Date.now(),
-      uid: auth.currentUser.uid
-    });
-    
-    // Обновляем статистику постов
-    await db.collection("users").doc(auth.currentUser.uid).update({
-      'stats.posts': firebase.firestore.FieldValue.increment(1)
-    });
-    
-    document.getElementById('postText').value = '';
-    showNotification('Пост опубликован', 'success');
-    
-  } catch (error) {
-    showNotification('Ошибка публикации: ' + error.message, 'error');
-  }
-}
-
-// === ДРУЗЬЯ ===
-
-function loadFriends() {
-  db.collection("users").onSnapshot(snapshot => {
-    const friendsList = document.getElementById('friendsList');
-    friendsList.innerHTML = '';
-    
-    snapshot.forEach(doc => {
-      if (doc.id !== auth.currentUser.uid) {
-        const user = doc.data();
-        const statusText = getStatusText(user);
-        
-        const friendDiv = document.createElement('div');
-        friendDiv.className = 'user';
-        friendDiv.innerHTML = `
-          <div class="avatar">${user.avatar || "👤"}</div>
-          <div class="user-info">
-            <div>${user.username}</div>
-            <div class="status">${statusText}</div>
-          </div>
-        `;
-        friendsList.appendChild(friendDiv);
-      }
-    });
-  });
-}
-
-// === ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ===
-
-// Показать уведомление
-function showNotification(message, type = 'info') {
-  const notification = document.createElement('div');
-  notification.className = `notification ${type}`;
-  
-  const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
-  notification.innerHTML = `
-    <div style="display:flex;align-items:center;gap:10px;">
-      ${icon}
-      <div style="color:white;">${message}</div>
-    </div>
-  `;
-  
-  document.body.appendChild(notification);
-  
-  setTimeout(() => {
-    notification.remove();
-  }, 5000);
-}
-
-// Показать модальное окно
-function showModal(modalId) {
-  document.getElementById(modalId).classList.remove('hidden');
-}
-
-// Закрыть модальное окно
-function closeModal(modalId) {
-  document.getElementById(modalId).classList.add('hidden');
-}
-
-// Переключение вкладок
-function openTab(id, el) {
-  ["chats", "news", "friends"].forEach(x => {
-    document.getElementById(x).classList.add("hidden");
-  });
-  document.getElementById(id).classList.remove("hidden");
-  
-  document.querySelectorAll(".tab").forEach(t => {
-    t.classList.remove("active");
-  });
-  el.classList.add("active");
-}
-
-// Показать/скрыть элементы
-function show(id) {
-  ["auth", "profileSetup", "main", "profileView", "myProfile"].forEach(x => {
-    document.getElementById(x).classList.add("hidden");
-  });
-  document.getElementById(id).classList.remove("hidden");
-}
-
-// Назад
-function back() {
-  show("main");
-}
-
-// Выйти
-async function logout() {
-  try {
-    if (auth.currentUser) {
-      await db.collection("users").doc(auth.currentUser.uid).update({
-        online: false,
-        lastSeen: Date.now()
-      });
-    }
-    await auth.signOut();
-    showNotification('Выход выполнен', 'success');
-  } catch (error) {
-    showNotification('Ошибка выхода: ' + error.message, 'error');
-  }
-}
-
-// Добавляем стили для анимации
-const style = document.createElement('style');
-style.textContent = `
-  .avatar-option, .status-option {
-    cursor: pointer;
-    padding: 10px;
-    border-radius: 8px;
-    border: 2px solid transparent;
-    text-align: center;
-  }
-  
-  .avatar-option.selected, .status-option.selected {
-    border-color: #3b82f6;
-    background: rgba(59, 130, 246, 0.1);
-  }
-  
-  .avatar-option:hover, .status-option:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
-`;
-document.head.appendChild(style);
-
-// Инициализация при загрузке
-document.addEventListener('DOMContentLoaded', function() {
-  if (auth.currentUser) {
-    auth.signOut();
-  }
-});
-</script>
 </body>
 </html>
