@@ -1,141 +1,155 @@
-// ===== Редкости =====
-
-const RARITY = {
-    COMMON: "common",
-    RARE: "rare",
-    EPIC: "epic",
-    LEGENDARY: "legendary",
-    MYTHIC: "mythic"
-};
-
-// ===== Кейсы =====
-
 const CASES = {
 
 classic:{
 
-name:"Classic Case",
-
-price:100,
-
-items:[
-
+common:[
 {
 name:"Forest Rifle",
-rarity:RARITY.COMMON,
-price:5
+image:"img/items/forest_rifle.png",
+price:5,
+rarity:"common"
 },
-
 {
 name:"Urban SMG",
-rarity:RARITY.COMMON,
-price:7
+image:"img/items/urban_smg.png",
+price:7,
+rarity:"common"
 },
-
 {
 name:"Blue Pistol",
-rarity:RARITY.RARE,
-price:18
-},
-
-{
-name:"Crimson AK",
-rarity:RARITY.EPIC,
-price:45
-},
-
-{
-name:"Golden Knife",
-rarity:RARITY.LEGENDARY,
-price:250
-},
-
-{
-name:"Dragon Gloves",
-rarity:RARITY.MYTHIC,
-price:800
+image:"img/items/blue_pistol.png",
+price:10,
+rarity:"common"
 }
+],
 
+rare:[
+{
+name:"Red AK",
+image:"img/items/red_ak.png",
+price:40,
+rarity:"rare"
+},
+{
+name:"Ice M4",
+image:"img/items/ice_m4.png",
+price:45,
+rarity:"rare"
+},
+{
+name:"Steel USP",
+image:"img/items/steel_usp.png",
+price:55,
+rarity:"rare"
+}
+],
+
+epic:[
+{
+name:"Crimson AWP",
+image:"img/items/crimson_awp.png",
+price:120,
+rarity:"epic"
+},
+{
+name:"Golden Deagle",
+image:"img/items/golden_deagle.png",
+price:140,
+rarity:"epic"
+}
+],
+
+legendary:[
+{
+name:"Dragon Knife",
+image:"img/items/dragon_knife.png",
+price:700,
+rarity:"legendary"
+},
+{
+name:"Ruby Karambit",
+image:"img/items/ruby_karambit.png",
+price:1200,
+rarity:"legendary"
+}
 ]
 
 },
 
 neon:{
-
-name:"Neon Case",
-
-price:250,
-
-items:[
-
+common:[
 {
 name:"Neon Glock",
-rarity:RARITY.COMMON,
-price:15
-},
+image:"img/items/neon_glock.png",
+price:10,
+rarity:"common"
+}
+],
 
+rare:[
 {
-name:"Neon MP9",
-rarity:RARITY.RARE,
-price:35
-},
+name:"Neon AK",
+image:"img/items/neon_ak.png",
+price:60,
+rarity:"rare"
+}
+],
 
-{
-name:"Neon M4",
-rarity:RARITY.EPIC,
-price:90
-},
-
+epic:[
 {
 name:"Neon AWP",
-rarity:RARITY.LEGENDARY,
-price:450
-},
+image:"img/items/neon_awp.png",
+price:180,
+rarity:"epic"
+}
+],
 
+legendary:[
 {
 name:"Neon Butterfly",
-rarity:RARITY.MYTHIC,
-price:1200
+image:"img/items/neon_butterfly.png",
+price:1500,
+rarity:"legendary"
 }
-
 ]
-
 },
 
 dragon:{
-
-name:"Dragon Case",
-
-price:500,
-
-items:[
-
+common:[
 {
 name:"Dragon P250",
-rarity:RARITY.RARE,
-price:40
-},
+image:"img/items/dragon_p250.png",
+price:15,
+rarity:"common"
+}
+],
 
+rare:[
 {
 name:"Dragon AK",
-rarity:RARITY.EPIC,
-price:120
-},
+image:"img/items/dragon_ak.png",
+price:80,
+rarity:"rare"
+}
+],
 
+epic:[
 {
-name:"Dragon AWP",
-rarity:RARITY.LEGENDARY,
-price:650
-},
+name:"Dragon M4",
+image:"img/items/dragon_m4.png",
+price:250,
+rarity:"epic"
+}
+],
 
+legendary:[
 {
 name:"Dragon Karambit",
-rarity:RARITY.MYTHIC,
-price:2000
+image:"img/items/dragon_karambit.png",
+price:2200,
+rarity:"legendary"
 }
-
 ]
-
 }
 
 };
