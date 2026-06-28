@@ -3,7 +3,7 @@
 // Полностью новый cases.js
 // ================================
 
-let coins = Number(localStorage.getItem("coins")) || 1000;
+let coins = Number(localStorage.getItem("coins")) || 900000;
 let inventory = JSON.parse(localStorage.getItem("inventory")) || [];
 
 const coinsText = document.getElementById("coins");
