@@ -166,3 +166,20 @@ function winnerAnimation(){
 }
 
 window.openCase=openCase;
+const addCoinsBtn = document.getElementById("addCoinsBtn");
+
+if(addCoinsBtn){
+
+    addCoinsBtn.onclick = function(){
+
+        coins += 1000000;
+
+        localStorage.setItem("coins", coins);
+
+        updateCoins();
+
+        alert("+1 000 000 монет!");
+
+    };
+
+}
