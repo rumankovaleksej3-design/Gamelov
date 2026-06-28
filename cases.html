@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Кейсы</title>
+
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/cases.css">
+
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="background"></div>
+
+<header>
+
+<div class="logo">
+🎁 Case Simulator
+</div>
+
+<nav>
+
+<a href="index.html">Главная</a>
+
+<a href="cases.html">Кейсы</a>
+
+<a href="inventory.html">Инвентарь</a>
+
+<a href="profile.html">Профиль</a>
+
+</nav>
+
+<div class="money">
+
+💰 <span id="coins">1000</span>
+
+</div>
+
+</header>
+
+<section class="cases">
+
+<div class="case-card">
+<h2>Classic Case</h2>
+<p>Цена: 100</p>
+<button onclick="openCase('classic',100)">Открыть</button>
+</div>
+
+<div class="case-card">
+<h2>Neon Case</h2>
+<p>Цена: 250</p>
+<button onclick="openCase('neon',250)">Открыть</button>
+</div>
+
+<div class="case-card">
+<h2>Dragon Case</h2>
+<p>Цена: 500</p>
+<button onclick="openCase('dragon',500)">Открыть</button>
+</div>
+
+<div class="case-card">
+<h2>Galaxy Case</h2>
+<p>Цена: 750</p>
+<button onclick="openCase('galaxy',750)">Открыть</button>
+</div>
+
+<div class="case-card">
+<h2>Inferno Case</h2>
+<p>Цена: 1000</p>
+<button onclick="openCase('inferno',1000)">Открыть</button>
+</div>
+
+<div class="case-card">
+<h2>Shadow Case</h2>
+<p>Цена: 1500</p>
+<button onclick="openCase('shadow',1500)">Открыть</button>
+</div>
+
+</section>
+
+<div id="rouletteWindow">
+
+<div id="rouletteItems"></div>
+
+</div>
+
+<h2 id="dropTitle">
+Последний предмет
+</h2>
+
+<div id="dropItem">
+Пока ничего не выпало
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/cases.js"></script>
+
+</body>
+</html>
