@@ -1,53 +1,77 @@
-// ===== Загрузка данных =====
+// ================================
+// Case Simulator
+// Полностью новый cases.js
+// ================================
 
 let coins = Number(localStorage.getItem("coins")) || 1000;
 let inventory = JSON.parse(localStorage.getItem("inventory")) || [];
 
-const coinsSpan = document.getElementById("coins");
+const coinsText = document.getElementById("coins");
+const roulette = document.getElementById("rouletteItems");
 const dropItem = document.getElementById("dropItem");
 
-if (coinsSpan) {
-    coinsSpan.textContent = coins;
+updateCoins();
+
+function updateCoins() {
+    coinsText.textContent = coins;
+    localStorage.setItem("coins", coins);
 }
 
-// ===== Вероятности выпадения =====
-
-const chances = {
-    common: 50,
-    rare: 30,
-    epic: 14,
-    legendary: 5,
-    mythic: 1
-};
-
-// ===== Получить случайный предмет =====
-
-function getRandomItem(caseId) {
-
-    const currentCase = CASES[caseId];
-
-    if (!currentCase) return null;
-
-    const pool = [];
-
-    currentCase.items.forEach(item => {
-
-        const count = chances[item.rarity] || 1;
-
-        for (let i = 0; i < count; i++) {
-            pool.push(item);
-        }
-
-    });
-
-    return pool[Math.floor(Math.random() * pool.length)];
+function saveInventory() {
+    localStorage.setItem("inventory", JSON.stringify(inventory));
 }
 
-// ===== Открыть кейс =====
+function randomItem(caseName) {
 
-function openCase(caseId, price) {
+    const list = CASES[caseName];
 
-    if (coins < price) {
+    let chance = Math.random();
+
+    if (chance < 0.60) {
+
+        return list.common[Math.floor(Math.random() * list.common.length)];
+
+    }
+
+    if (chance < 0.85) {
+
+        return list.rare[Math.floor(Math.random() * list.rare.length)];
+
+    }
+
+    if (chance < 0.97) {
+
+        return list.epic[Math.floor(Math.random() * list.epic.length)];
+
+    }
+
+    return list.legendary[Math.floor(Math.random() * list.legendary.length)];
+
+}
+
+function createCard(item){
+
+    const card=document.createElement("div");
+
+    card.className="roulette-card "+item.rarity;
+
+    card.innerHTML=`
+
+        <img src="${item.image}">
+
+        <h3>${item.name}</h3>
+
+        <p>${item.price}$</p>
+
+    `;
+
+    return card;
+
+}
+
+function openCase(caseName,price){
+
+    if(coins<price){
 
         alert("Недостаточно монет!");
 
@@ -55,28 +79,90 @@ function openCase(caseId, price) {
 
     }
 
-    coins -= price;
+    coins-=price;
 
-    const item = getRandomItem(caseId);
+    updateCoins();
 
-    inventory.unshift(item);
+    roulette.innerHTML="";
 
-    localStorage.setItem("coins", coins);
-    localStorage.setItem("inventory", JSON.stringify(inventory));
+    let items=[];
 
-    if (coinsSpan) {
-        coinsSpan.textContent = coins;
+    for(let i=0;i<80;i++){
+
+        items.push(randomItem(caseName));
+
     }
 
-    if (dropItem) {
-        dropItem.innerHTML = `
-            <div class="${item.rarity}">
-                <h2>${item.name}</h2>
-                <p>Редкость: ${item.rarity}</p>
-                <p>Стоимость: ${item.price}</p>
-            </div>
-        `;
-    }
+    const winner=randomItem(caseName);
 
-    console.log("Выпал предмет:", item);
+    items[70]=winner;
+
+    items.forEach(item=>{
+
+        roulette.appendChild(createCard(item));
+
+    });
+
+    roulette.style.transition="none";
+
+    roulette.style.transform="translateX(0px)";
+
+    setTimeout(()=>{
+
+        roulette.style.transition="transform 8s cubic-bezier(.08,.82,.17,1)";
+        const cardWidth = 170;
+        const centerOffset = (roulette.parentElement.offsetWidth / 2) - (cardWidth / 2);
+        const position = -(70 * cardWidth) + centerOffset;
+
+        roulette.style.transform = `translateX(${position}px)`;
+
+    },50);
+
+    setTimeout(()=>{
+
+        inventory.push(winner);
+
+        saveInventory();
+
+        showWinner(winner);
+
+    },8200);
+
 }
+
+function showWinner(item){
+
+    dropItem.innerHTML=`
+
+        <div class="winner-card ${item.rarity}">
+
+            <img src="${item.image}">
+
+            <h2>${item.name}</h2>
+
+            <p>${item.price}$</p>
+
+        </div>
+
+    `;
+
+    winnerAnimation();
+
+}
+
+function winnerAnimation(){
+
+    dropItem.style.transform="scale(.7)";
+    dropItem.style.opacity="0";
+
+    setTimeout(()=>{
+
+        dropItem.style.transition=".5s";
+        dropItem.style.transform="scale(1)";
+        dropItem.style.opacity="1";
+
+    },50);
+
+}
+
+window.openCase=openCase;
