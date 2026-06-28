@@ -1,85 +1,112 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Case Simulator</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case Simulator</title>
 
-    <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="css/style.css">
 
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+
 </head>
-
 <body>
 
-<header>
-    <h1>🎁 CASE SIMULATOR</h1>
+<div class="background"></div>
 
-    <div class="balance">
-        💰 Баланс:
-        <span id="coins">1000</span>
-    </div>
+<header>
+
+<div class="logo">
+🎁 Case Simulator
+</div>
+
+<nav>
+
+<a href="index.html">Главная</a>
+
+<a href="cases.html">Кейсы</a>
+
+<a href="inventory.html">Инвентарь</a>
+
+<a href="profile.html">Профиль</a>
+
+</nav>
+
+<div class="money">
+
+💰 <span id="coins">1000</span>
+
+</div>
+
 </header>
 
-<main>
+<section class="hero">
 
-<div class="case-box">
+<h1>
 
-<h2>Premium Case</h2>
+Открывай виртуальные кейсы
 
-<div class="roulette" id="roulette">
+</h1>
 
-<div class="line"></div>
+<p>
 
-<div class="items" id="items">
+Получай виртуальные предметы различной редкости
 
-<div class="card gray">Common</div>
-<div class="card blue">Rare</div>
-<div class="card purple">Epic</div>
-<div class="card pink">Legendary</div>
-<div class="card gold">Mythic</div>
+</p>
+
+<a href="cases.html" class="play">
+
+Открыть кейсы
+
+</a>
+
+</section>
+
+<section class="features">
+
+<div class="feature">
+
+📦
+
+<h2>12 кейсов</h2>
+
+<p>Разные коллекции предметов.</p>
 
 </div>
 
+<div class="feature">
+
+🎰
+
+<h2>Рулетка</h2>
+
+<p>Плавная анимация открытия.</p>
+
 </div>
 
-<button id="openBtn">
-Открыть кейс (100)
-</button>
+<div class="feature">
+
+🎒
+
+<h2>Инвентарь</h2>
+
+<p>Все предметы сохраняются.</p>
 
 </div>
 
-<section>
+<div class="feature">
 
-<h2>
-Последний предмет
-</h2>
+🏆
 
-<div id="winItem">
+<h2>Достижения</h2>
 
-Ничего не выпало
+<p>Получай награды за открытия.</p>
 
 </div>
 
 </section>
 
-<section>
-
-<h2>
-
-Инвентарь
-
-</h2>
-
-<div id="inventory">
-
-</div>
-
-</section>
-
-</main>
-
-<script src="script.js"></script>
+<script src="js/app.js"></script>
 
 </body>
 </html>
