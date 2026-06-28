@@ -5,140 +5,136 @@
 }
 
 body{
-    background:#0d1117;
-    color:white;
     font-family:'Montserrat',sans-serif;
+    color:#fff;
+    background:#0b0f1a;
+    overflow-x:hidden;
+}
+
+.background{
+    position:fixed;
+    inset:0;
+    background:
+        radial-gradient(circle at top,#2b2f77 0%,transparent 40%),
+        radial-gradient(circle at bottom,#00b4ff22 0%,transparent 40%),
+        linear-gradient(180deg,#090b12,#111827);
+    z-index:-2;
+}
+
+.background::after{
+    content:"";
+    position:absolute;
+    width:100%;
+    height:100%;
+    background-image:
+        radial-gradient(#ffffff22 1px,transparent 1px);
+    background-size:40px 40px;
+    animation:move 25s linear infinite;
+    opacity:.35;
+}
+
+@keyframes move{
+    from{
+        transform:translateY(0);
+    }
+    to{
+        transform:translateY(40px);
+    }
 }
 
 header{
+    height:80px;
     display:flex;
     justify-content:space-between;
     align-items:center;
-    padding:25px;
-    background:#161b22;
-    box-shadow:0 0 20px rgba(0,0,0,.4);
+    padding:0 40px;
+    background:rgba(17,24,39,.8);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid rgba(255,255,255,.08);
 }
 
-h1{
+.logo{
+    font-size:28px;
+    font-weight:800;
     color:#ffb400;
 }
 
-.balance{
-    font-size:22px;
-    font-weight:bold;
-}
-
-main{
-    max-width:1200px;
-    margin:auto;
-    padding:40px;
-}
-
-.case-box{
-    background:#161b22;
-    border-radius:15px;
-    padding:30px;
-    text-align:center;
-    margin-bottom:40px;
-}
-
-.roulette{
-    margin:30px auto;
-    width:100%;
-    max-width:900px;
-    height:170px;
-    overflow:hidden;
-    position:relative;
-    border:4px solid #ffb400;
-    border-radius:10px;
-    background:#222;
-}
-
-.line{
-    position:absolute;
-    left:50%;
-    top:0;
-    width:4px;
-    height:100%;
-    background:red;
-    z-index:10;
-}
-
-.items{
+nav{
     display:flex;
-    align-items:center;
-    height:100%;
-    transition:transform 5s cubic-bezier(.15,.8,.2,1);
+    gap:25px;
 }
 
-.card{
-    min-width:150px;
-    height:140px;
-    margin:15px;
-    border-radius:10px;
-    display:flex;
-    justify-content:center;
-    align-items:center;
+nav a{
+    color:white;
+    text-decoration:none;
+    font-weight:600;
+    transition:.25s;
+}
+
+nav a:hover{
+    color:#ffb400;
+}
+
+.money{
     font-size:20px;
     font-weight:bold;
-    color:white;
 }
 
-.gray{
-    background:#777;
+.hero{
+    text-align:center;
+    padding:120px 20px;
 }
 
-.blue{
-    background:#1976d2;
+.hero h1{
+    font-size:56px;
+    margin-bottom:20px;
 }
 
-.purple{
-    background:#7b1fa2;
-}
-
-.pink{
-    background:#e91e63;
-}
-
-.gold{
-    background:#ffb300;
-    color:black;
-}
-
-button{
-    margin-top:25px;
-    padding:18px 45px;
+.hero p{
     font-size:22px;
-    border:none;
-    border-radius:12px;
-    cursor:pointer;
-    background:#ff9800;
-    color:white;
-    transition:.3s;
+    opacity:.85;
 }
 
-button:hover{
+.play{
+    display:inline-block;
+    margin-top:40px;
+    background:#ffb400;
+    color:black;
+    padding:18px 40px;
+    border-radius:14px;
+    text-decoration:none;
+    font-weight:700;
+    transition:.25s;
+}
+
+.play:hover{
     transform:scale(1.05);
-    background:#ffb300;
 }
 
-#winItem{
-    margin-top:20px;
-    font-size:32px;
-    font-weight:bold;
-    text-align:center;
-}
-
-#inventory{
+.features{
+    width:1200px;
+    max-width:95%;
+    margin:auto;
     display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
-    gap:15px;
-    margin-top:20px;
+    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    gap:25px;
+    margin-bottom:80px;
 }
 
-.invItem{
-    padding:15px;
-    border-radius:10px;
+.feature{
+    background:#161b22;
+    border-radius:18px;
+    padding:35px;
     text-align:center;
-    font-weight:bold;
+    transition:.3s;
+    border:1px solid rgba(255,255,255,.06);
+}
+
+.feature:hover{
+    transform:translateY(-8px);
+    box-shadow:0 0 30px rgba(255,180,0,.25);
+}
+
+.feature h2{
+    margin:15px 0;
 }
